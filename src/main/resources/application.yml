@@ -1,6 +1,15 @@
 spring:
     application:
         name: aihub
+    datasource:
+        url: jdbc:mysql://localhost:3306/aihub
+        name: root
+        password:
+mybatis:
+    type-aliases-package: com.stu.pojo
+    mapper-locations: classpath:mapper/*.xml
+    configuration:
+        mapUnderscoreToCamelCase: true
 
 deepseek:
     api_key: 2264080d-8e47-4b0c-9fe8-1849c696bb5e
