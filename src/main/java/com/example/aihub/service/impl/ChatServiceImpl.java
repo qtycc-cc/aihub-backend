@@ -2,12 +2,13 @@ package com.example.aihub.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.aihub.pojo.ChatRespType;
 import com.example.aihub.pojo.UserChatRequest;
+import com.example.aihub.pojo.UserChatResponse;
 import com.example.aihub.service.ChatService;
 import com.example.aihub.utils.Console;
 import com.example.aihub.utils.ToJson;
@@ -79,13 +80,28 @@ public class ChatServiceImpl implements ChatService {
 
         return Flux.concat(
                 // 1️⃣ 先返回聊天的元数据（ID、主题等）
-                Flux.just(ToJson.toJson(Map.of("type", "metadata", "chatId", 1, "topic", "AI研究")) + "\n\n"),
+                Flux.just(ToJson.toJson(
+                        UserChatResponse.builder()
+                            .type(ChatRespType.METADATA)
+                            .chatInfoId(1)
+                            .topic("AI 研究")
+                            .build()
+                    )),
 
                 // 2️⃣ 然后流式返回消息内容
                 Flux.from(flowableResponse)
-                        .map(content -> ToJson.toJson(Map.of("type", "message", "data", content)) + "\n\n"),
+                        .map(content -> ToJson.toJson(
+                            UserChatResponse.builder()
+                                .type(ChatRespType.MESSAGE)
+                                .data(content)
+                                .build()
+                        )),
 
                 // 3️⃣ 结束标志，告诉前端流结束了
-                Flux.just(ToJson.toJson(Map.of("type", "end")) + "\n\n"));
+                Flux.just(ToJson.toJson(
+                    UserChatResponse.builder()
+                                .type(ChatRespType.END)
+                                .build()
+                )));
     }
 }
