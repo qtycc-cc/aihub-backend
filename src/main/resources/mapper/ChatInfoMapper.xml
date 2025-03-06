@@ -3,28 +3,28 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.aihub.mapper.ChatMapper">
-    <select id="findAllChats">
+<mapper namespace="com.example.aihub.mapper.ChatInfoMapper">
+    <select id="findAllChatInfos">
         SELECT
             `id`, `user_id`, `content`
         FROM
-            `chat`
+            `chatinfo`
     </select>
 
-    <select id="findChatById">
+    <select id="findChatInfoById">
         SELECT
             `id`, `user_id`, `content`
         FROM
-            `chat`
+            `chatinfo`
         WHERE
             `id` = #{id}
     </select>
 
-    <select id="findChatByUserId">
+    <select id="findChatInfoByUserId">
         SELECT
             `id`, `user_id`, `content`
         FROM
-            `chat`
+            `chatinfo`
         WHERE
             `user_id` = #{userId}
     </select>

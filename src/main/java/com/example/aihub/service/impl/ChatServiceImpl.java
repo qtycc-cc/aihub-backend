@@ -2,6 +2,7 @@ package com.example.aihub.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.aihub.pojo.UserChatRequest;
 import com.example.aihub.service.ChatService;
 import com.example.aihub.utils.Console;
+import com.example.aihub.utils.ToJson;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
@@ -24,7 +26,10 @@ public class ChatServiceImpl implements ChatService {
 
     private final String MODEL = "deepseek-r1-250120";
 
+    private final String REASON_PREFIX = "reason: ";
+
     private List<ChatMessage> chatMessages;
+
     public Flux<Object> chat(UserChatRequest userChatReq) {
         Console.log(userChatReq.toString());
 
@@ -56,14 +61,15 @@ public class ChatServiceImpl implements ChatService {
 
         // 发送聊天完成请求
         // 返回流式数据
-        Flowable<String> flowableResponse = Flowable.fromPublisher(arkService.streamChatCompletion(chatCompletionRequest))
+        Flowable<String> flowableResponse = Flowable
+                .fromPublisher(arkService.streamChatCompletion(chatCompletionRequest))
                 .map(choice -> {
                     if (choice.getChoices().size() > 0) {
                         ChatMessage message = choice.getChoices().get(0).getMessage();
-                        String responseContent = (String)message.getContent();
+                        String responseContent = (String) message.getContent();
                         // 处理模型输出的内容
                         if (message.getReasoningContent() != null && !message.getReasoningContent().isEmpty()) {
-                            responseContent = message.getReasoningContent(); // 使用推理内容
+                            responseContent = REASON_PREFIX + message.getReasoningContent(); // 使用推理内容
                         }
                         return responseContent;
                     }
@@ -71,6 +77,15 @@ public class ChatServiceImpl implements ChatService {
                 })
                 .doOnError(Throwable::printStackTrace);
 
-        return Flux.from(flowableResponse);
+        return Flux.concat(
+                // 1️⃣ 先返回聊天的元数据（ID、主题等）
+                Flux.just(ToJson.toJson(Map.of("type", "metadata", "chatId", 1, "topic", "AI研究")) + "\n\n"),
+
+                // 2️⃣ 然后流式返回消息内容
+                Flux.from(flowableResponse)
+                        .map(content -> ToJson.toJson(Map.of("type", "message", "data", content)) + "\n\n"),
+
+                // 3️⃣ 结束标志，告诉前端流结束了
+                Flux.just(ToJson.toJson(Map.of("type", "end")) + "\n\n"));
     }
 }
