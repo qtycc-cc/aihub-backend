@@ -1,0 +1,6 @@
+spring:
+    application:
+        name: aihub
+
+deepseek:
+    api_key: 2264080d-8e47-4b0c-9fe8-1849c696bb5e
