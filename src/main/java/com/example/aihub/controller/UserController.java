@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.aihub.pojo.UserLoginResponse;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
 import com.example.aihub.service.UserService;
@@ -19,7 +20,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/api/v1/login")
-    public ResponseEntity<UserResponse> login(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserLoginResponse> login(@RequestBody UserRequest userRequest) {
         return userService.login(userRequest);
     }
 

@@ -3,6 +3,7 @@ package com.example.aihub.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,11 @@ import com.example.aihub.mapper.ChatInfoMapper;
 import com.example.aihub.mapper.UserMapper;
 import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.User;
+import com.example.aihub.pojo.UserLoginResponse;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
 import com.example.aihub.service.UserService;
+import com.example.aihub.utils.JWTUtils;
 import com.example.aihub.utils.MD5Utils;
 
 import cn.hutool.core.util.StrUtil;
@@ -28,7 +31,7 @@ public class UserServiceImpl implements UserService {
     private ChatInfoMapper chatInfoMapper;
 
     @Override
-    public ResponseEntity<UserResponse> login(UserRequest userRequest) {
+    public ResponseEntity<UserLoginResponse> login(UserRequest userRequest) {
         if (userRequest == null
                 || StrUtil.isBlank(userRequest.getAccount())
                 || StrUtil.isBlank(userRequest.getPassword())) {
@@ -45,7 +48,12 @@ public class UserServiceImpl implements UserService {
                                             .password(user.getPassword())
                                             .userChatInfos(userChatInfos)
                                             .build();
-        return ResponseEntity.ok().body(userResponse);
+        UserLoginResponse userLoginResponse = new UserLoginResponse();
+        BeanUtils.copyProperties(userResponse, userLoginResponse);
+        userLoginResponse.setAccessToken(JWTUtils.generateToken(user.getAccount()));
+        userLoginResponse.setRefreshToken(JWTUtils.generateRefreshToken(user.getAccount()));
+
+        return ResponseEntity.ok().body(userLoginResponse);
     }
 
     @Override
