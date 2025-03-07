@@ -17,4 +17,20 @@
         WHERE
             `id` = #{id}
     </select>
+
+    <select id="findUserByAccount">
+        SELECT
+            `id`, `account`, `password`
+        FROM
+            `user`
+        WHERE
+            `account` = #{account}
+    </select>
+
+    <insert id="insertUser">
+        INSERT INTO
+            `user`(`account`, `password`)
+        VALUES
+            (#{account}, #{password})
+    </insert>
 </mapper>

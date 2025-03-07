@@ -20,7 +20,7 @@
             `id` = #{id}
     </select>
 
-    <select id="findChatInfoByUserId">
+    <select id="findChatInfosByUserId">
         SELECT
             `id`, `user_id`, `content`
         FROM

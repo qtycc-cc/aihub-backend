@@ -11,7 +11,7 @@ import com.example.aihub.pojo.UserChatRequest;
 import com.example.aihub.pojo.UserChatResponse;
 import com.example.aihub.service.ChatService;
 import com.example.aihub.utils.Console;
-import com.example.aihub.utils.ToJson;
+import com.example.aihub.utils.JsonUtils;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
@@ -80,7 +80,7 @@ public class ChatServiceImpl implements ChatService {
 
         return Flux.concat(
                 // 1️⃣ 先返回聊天的元数据（ID、主题等）
-                Flux.just(ToJson.toJson(
+                Flux.just(JsonUtils.toJson(
                         UserChatResponse.builder()
                             .type(ChatRespType.METADATA)
                             .chatInfoId(1)
@@ -90,7 +90,7 @@ public class ChatServiceImpl implements ChatService {
 
                 // 2️⃣ 然后流式返回消息内容
                 Flux.from(flowableResponse)
-                        .map(content -> ToJson.toJson(
+                        .map(content -> JsonUtils.toJson(
                             UserChatResponse.builder()
                                 .type(ChatRespType.MESSAGE)
                                 .data(content)
@@ -98,7 +98,7 @@ public class ChatServiceImpl implements ChatService {
                         )),
 
                 // 3️⃣ 结束标志，告诉前端流结束了
-                Flux.just(ToJson.toJson(
+                Flux.just(JsonUtils.toJson(
                     UserChatResponse.builder()
                                 .type(ChatRespType.END)
                                 .build()
