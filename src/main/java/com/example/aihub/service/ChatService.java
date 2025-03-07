@@ -9,5 +9,5 @@ public interface ChatService {
      * 聊天服务
      * @param userChatReq 用户请求对象
      */
-    Flux<Object> chat(UserChatRequest userChatReq);
+    Flux<String> chat(UserChatRequest userChatReq);
 }

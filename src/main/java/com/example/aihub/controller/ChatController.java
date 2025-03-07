@@ -20,7 +20,7 @@ public class ChatController {
     private ChatService chatService;
 
     @PostMapping(value = "/api/v1/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Object> chat(@RequestBody UserChatRequest userChatReq) {
+    public Flux<String> chat(@RequestBody UserChatRequest userChatReq) {
         return chatService.chat(userChatReq);
     }
 }

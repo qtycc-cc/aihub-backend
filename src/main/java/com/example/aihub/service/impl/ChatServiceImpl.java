@@ -1,22 +1,26 @@
 package com.example.aihub.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.aihub.mapper.ChatInfoMapper;
+import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.ChatRespType;
 import com.example.aihub.pojo.UserChatRequest;
 import com.example.aihub.pojo.UserChatResponse;
 import com.example.aihub.service.ChatService;
 import com.example.aihub.utils.Console;
 import com.example.aihub.utils.JsonUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
 import com.volcengine.ark.runtime.service.ArkService;
 
+import cn.hutool.core.util.StrUtil;
 import io.reactivex.Flowable;
 import reactor.core.publisher.Flux;
 
@@ -24,23 +28,40 @@ import reactor.core.publisher.Flux;
 public class ChatServiceImpl implements ChatService {
     @Autowired
     private ArkService arkService;
+    @Autowired
+    private ChatInfoMapper chatInfoMapper;
+    // @Autowired
+    // private CacheService<List<ChatMessage>> cacheService;
 
     private final String MODEL = "deepseek-r1-250120";
-
     private final String REASON_PREFIX = "reason: ";
-
+    // private final Long TTL = 1000 * 60 * 10L; // 10 min
     private List<ChatMessage> chatMessages;
 
-    public Flux<Object> chat(UserChatRequest userChatReq) {
-        Console.log(userChatReq.toString());
+    public Flux<String> chat(UserChatRequest userChatReq) {
+        if (userChatReq == null
+            || StrUtil.isBlank(userChatReq.getMessage())
+            || userChatReq.getUserId() == null) {
+                throw new IllegalArgumentException("Request cannot be empty!");
+        }
 
-        if (userChatReq.isNewChat()) {
-            chatMessages = new ArrayList<>();
-            // TODO: 保存旧的数据
+        Integer chatInfoId;
+
+        if (userChatReq.getChatInfoId() == null) {
+            chatMessages = new CopyOnWriteArrayList<>();
+            ChatInfo newChatInfo = new ChatInfo();
+            newChatInfo.setUserId(userChatReq.getUserId());
+            newChatInfo.setContent("[]");
+            chatInfoMapper.insertChatInfo(newChatInfo);
+            chatInfoId = newChatInfo.getId();
+        } else {
+            ChatInfo chatInfo = chatInfoMapper.findChatInfoById(userChatReq.getChatInfoId());
+            chatInfoId = chatInfo.getId();
+            chatMessages = JsonUtils.fromJson(chatInfo.getContent(), new TypeReference<List<ChatMessage>>() {});
         }
 
         // 提示词
-        if (userChatReq.getPrompt() != null) {
+        if (userChatReq.getPrompt() != null && !StrUtil.isBlank(userChatReq.getPrompt())) {
             ChatMessage sysMessage = ChatMessage.builder()
                     .role(ChatMessageRole.SYSTEM)
                     .content(userChatReq.getPrompt())
@@ -72,6 +93,7 @@ public class ChatServiceImpl implements ChatService {
                         if (message.getReasoningContent() != null && !message.getReasoningContent().isEmpty()) {
                             responseContent = REASON_PREFIX + message.getReasoningContent(); // 使用推理内容
                         }
+                        chatMessages.add(message);
                         return responseContent;
                     }
                     return "";
@@ -83,8 +105,8 @@ public class ChatServiceImpl implements ChatService {
                 Flux.just(JsonUtils.toJson(
                         UserChatResponse.builder()
                             .type(ChatRespType.METADATA)
-                            .chatInfoId(1)
-                            .topic("AI 研究")
+                            .chatInfoId(chatInfoId)
+                            .topic(userChatReq.getMessage())
                             .build()
                     )),
 
@@ -102,6 +124,27 @@ public class ChatServiceImpl implements ChatService {
                     UserChatResponse.builder()
                                 .type(ChatRespType.END)
                                 .build()
-                )));
+                ))).doOnComplete(() -> {
+                    userChatReq.setChatInfoId(chatInfoId);
+                    syncChatInfoToDatabase(userChatReq, chatMessages);
+                });
+    }
+
+    private void syncChatInfoToDatabase(UserChatRequest userChatRequest, List<ChatMessage> chatMessages) {
+        if (chatMessages == null) {
+            return;
+        }
+
+        ChatInfo chatInfo = ChatInfo.builder()
+                                .id(userChatRequest.getChatInfoId())
+                                .userId(userChatRequest.getUserId())
+                                .content(JsonUtils.toJson(chatMessages))
+                                .build();
+
+        if (chatInfo.getId() == null) {
+            chatInfoMapper.insertChatInfo(chatInfo);
+        } else {
+            chatInfoMapper.updateChatInfo(chatInfo);
+        }
     }
 }

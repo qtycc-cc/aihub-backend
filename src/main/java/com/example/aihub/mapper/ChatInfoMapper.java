@@ -8,4 +8,6 @@ public interface ChatInfoMapper {
     List<ChatInfo> findAllChatInfos();
     ChatInfo findChatInfoById(Integer id);
     List<ChatInfo> findChatInfosByUserId(Integer userId);
+    void insertChatInfo(ChatInfo chatInfo);
+    void updateChatInfo(ChatInfo chatInfo);
 }

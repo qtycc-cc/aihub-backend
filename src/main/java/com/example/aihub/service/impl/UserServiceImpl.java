@@ -63,12 +63,13 @@ public class UserServiceImpl implements UserService {
                 || StrUtil.isBlank(userRequest.getPassword())) {
             throw new IllegalArgumentException("Account or password can not be empty!");
         }
-        User user = userMapper.findUserByAccount(userRequest.getAccount());
-        if (user != null) {
+        if (userMapper.findUserByAccount(userRequest.getAccount()) != null) {
             throw new DuplicateKeyException("Account has been registered!");
         }
-        userMapper.insertUser(userRequest.getAccount(), MD5Utils.getMD5String(userRequest.getPassword()));
-        user = userMapper.findUserByAccount(userRequest.getAccount());
+        User user = new User();
+        BeanUtils.copyProperties(userRequest, user);
+        user.setPassword(MD5Utils.getMD5String(userRequest.getPassword()));
+        userMapper.insertUser(user);
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())

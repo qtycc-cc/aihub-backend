@@ -8,5 +8,5 @@ public interface UserMapper {
     List<User> findAllUsers();
     User findUserById(Integer id);
     User findUserByAccount(String account);
-    void insertUser(String account, String password);
+    void insertUser(User user);
 }
