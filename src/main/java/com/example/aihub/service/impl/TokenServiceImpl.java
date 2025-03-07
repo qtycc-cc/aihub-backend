@@ -1,6 +1,7 @@
 package com.example.aihub.service.impl;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import com.example.aihub.exception.InvalidCredentialsException;
 import com.example.aihub.pojo.RefreshTokenRequest;
@@ -10,6 +11,7 @@ import com.example.aihub.utils.JWTUtils;
 
 import cn.hutool.core.util.StrUtil;
 
+@Service
 public class TokenServiceImpl implements TokenService {
 
     @Override
