@@ -17,7 +17,7 @@ public class TokenController {
     @Autowired
     private TokenService tokenService;
 
-    @PostMapping("/refresh")
+    @PostMapping("/api/v1/refresh")
     public ResponseEntity<RefreshTokenResponse> refresh(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         return tokenService.refreshToken(refreshTokenRequest);
     }
