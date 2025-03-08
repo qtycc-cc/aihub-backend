@@ -1,7 +1,7 @@
 version: "3"
 services:
   mysql:
-    image: mysql:8
+    image: mysql:8.4.0-oraclelinux8
     container_name: aihub-mysql
     restart: always
     ports:
@@ -17,14 +17,20 @@ services:
     container_name: aihub-backend
     restart: always
     build: .
-    ports:
-      - 8080:8080
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/aihub
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=123456
     depends_on:
       - mysql
-
+  nginx:
+    image: nginx:latest
+    container_name: aihub-nginx
+    ports:
+      - 80:80
+    volumes:
+      - ~/nginx/conf.d/aihub.conf:/etc/nginx/nginx.conf
+    depends_on:
+      -  aihub
 volumes:
   mysql_data:
