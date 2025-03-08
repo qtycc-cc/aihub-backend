@@ -12,6 +12,7 @@ import com.example.aihub.pojo.ChatRespType;
 import com.example.aihub.pojo.UserChatRequest;
 import com.example.aihub.pojo.UserChatResponse;
 import com.example.aihub.service.ChatService;
+import com.example.aihub.utils.Console;
 import com.example.aihub.utils.JsonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
@@ -43,6 +44,8 @@ public class ChatServiceImpl implements ChatService {
             || userChatReq.getUserId() == null) {
                 throw new IllegalArgumentException("Request cannot be empty!");
         }
+
+        Console.log(userChatReq.getMessage());
 
         Integer chatInfoId;
 
