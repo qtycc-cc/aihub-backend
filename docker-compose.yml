@@ -16,7 +16,6 @@ services:
     image: qtycc/aihub:latest
     container_name: aihub-backend
     restart: always
-    build: .
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/aihub
       - SPRING_DATASOURCE_USERNAME=root
