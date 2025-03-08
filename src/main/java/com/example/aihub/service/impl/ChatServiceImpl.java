@@ -45,6 +45,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         Integer chatInfoId;
+        StringBuilder assistantContent = new StringBuilder("");
 
         if (userChatReq.getChatInfoId() == null) {
             chatMessages = new CopyOnWriteArrayList<>();
@@ -91,8 +92,9 @@ public class ChatServiceImpl implements ChatService {
                         // 处理模型输出的内容
                         if (message.getReasoningContent() != null && !message.getReasoningContent().isEmpty()) {
                             responseContent = REASON_PREFIX + message.getReasoningContent(); // 使用推理内容
+                        } else {
+                            assistantContent.append(message.getContent());
                         }
-                        chatMessages.add(message);
                         return responseContent;
                     }
                     return "";
@@ -124,6 +126,10 @@ public class ChatServiceImpl implements ChatService {
                                 .type(ChatRespType.END)
                                 .build()
                 ))).doOnComplete(() -> {
+                    chatMessages.add(ChatMessage.builder()
+                                                .role(ChatMessageRole.ASSISTANT)
+                                                .content(assistantContent.toString())
+                                                .build());
                     userChatReq.setChatInfoId(chatInfoId);
                     syncChatInfoToDatabase(userChatReq, chatMessages);
                 });
