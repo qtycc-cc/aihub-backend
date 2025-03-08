@@ -1,0 +1,28 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:8
+    restart: always
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_DATABASE: aihub
+      MYSQL_ROOT_PASSWORD: 123456
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+  springboot:
+    image: springboot:latest
+    restart: always
+    build: .
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/aihub
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=123456
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:

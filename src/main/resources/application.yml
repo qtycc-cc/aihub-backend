@@ -3,9 +3,9 @@ spring:
         name: aihub
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/aihub
-        username: root
-        password:
+        url: ${SPRING_DATASOURCE_URL}
+        username: ${SPRING_DATASOURCE_USERNAME}
+        password: ${SPRING_DATASOURCE_PASSWORD}
 mybatis:
     type-aliases-package: com.example.aihub.pojo
     mapper-locations: classpath:mapper/*.xml
