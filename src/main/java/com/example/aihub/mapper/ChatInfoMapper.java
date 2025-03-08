@@ -10,4 +10,5 @@ public interface ChatInfoMapper {
     List<ChatInfo> findChatInfosByUserId(Integer userId);
     void insertChatInfo(ChatInfo chatInfo);
     void updateChatInfo(ChatInfo chatInfo);
+    void deleteChatInfo(Integer id);
 }

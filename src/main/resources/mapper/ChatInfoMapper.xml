@@ -44,4 +44,11 @@
         WHERE
             `id` = #{id}
     </update>
+
+    <delete id="deleteChatInfo">
+        DELETE FROM
+            `chatinfo`
+        WHERE
+            `id` = #{id}
+    </delete>
 </mapper>

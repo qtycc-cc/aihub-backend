@@ -1,9 +1,11 @@
 package com.example.aihub.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.aihub.mapper.ChatInfoMapper;
@@ -133,6 +135,14 @@ public class ChatServiceImpl implements ChatService {
                     userChatReq.setChatInfoId(chatInfoId);
                     syncChatInfoToDatabase(userChatReq, chatMessages);
                 });
+    }
+
+    public ResponseEntity<String> deleteChat(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Chat id can not be null");
+        }
+        chatInfoMapper.deleteChatInfo(id);
+        return ResponseEntity.ok().body(JsonUtils.toJson(Map.of("message", "Chat has been deleted!")));
     }
 
     private void syncChatInfoToDatabase(UserChatRequest userChatRequest, List<ChatMessage> chatMessages) {
