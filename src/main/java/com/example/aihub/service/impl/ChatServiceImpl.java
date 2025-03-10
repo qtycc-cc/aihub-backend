@@ -47,6 +47,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         Integer chatInfoId;
+        StringBuilder reasonContent = new StringBuilder("");
         StringBuilder assistantContent = new StringBuilder("");
 
         if (userChatReq.getChatInfoId() == null) {
@@ -94,6 +95,7 @@ public class ChatServiceImpl implements ChatService {
                         // 处理模型输出的内容
                         if (message.getReasoningContent() != null && !message.getReasoningContent().isEmpty()) {
                             responseContent = REASON_PREFIX + message.getReasoningContent(); // 使用推理内容
+                            reasonContent.append(message.getReasoningContent());
                         } else {
                             assistantContent.append(message.getContent());
                         }
@@ -128,6 +130,10 @@ public class ChatServiceImpl implements ChatService {
                                 .type(ChatRespType.END)
                                 .build()
                 ))).doOnComplete(() -> {
+                    chatMessages.add(ChatMessage.builder()
+                                                .role(ChatMessageRole.ASSISTANT)
+                                                .reasoningContent(reasonContent.toString())
+                                                .build());
                     chatMessages.add(ChatMessage.builder()
                                                 .role(ChatMessageRole.ASSISTANT)
                                                 .content(assistantContent.toString())
