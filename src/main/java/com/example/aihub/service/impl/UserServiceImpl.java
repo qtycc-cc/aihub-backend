@@ -42,11 +42,13 @@ public class UserServiceImpl implements UserService {
             throw new InvalidCredentialsException("Account or password wrong!");
         }
         List<ChatInfo> userChatInfos = chatInfoMapper.findChatInfosByUserId(user.getId());
+        List<ChatInfo> userStars = chatInfoMapper.findStarredChatInfosByUserId(user.getId());
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())
                                             .password(user.getPassword())
                                             .userChatInfos(userChatInfos)
+                                            .userStars(userStars)
                                             .build();
         UserLoginResponse userLoginResponse = new UserLoginResponse();
         BeanUtils.copyProperties(userResponse, userLoginResponse);
@@ -75,6 +77,7 @@ public class UserServiceImpl implements UserService {
                                             .account(user.getAccount())
                                             .password(user.getPassword())
                                             .userChatInfos(new ArrayList<>())
+                                            .userStars(new ArrayList<>())
                                             .build();
         return ResponseEntity.ok().body(userResponse);
     }

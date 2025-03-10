@@ -51,4 +51,17 @@
         WHERE
             `id` = #{id}
     </delete>
+
+    <select id="findStarredChatInfosByUserId" resultType="ChatInfo">
+        SELECT
+            `chatinfo`.`id`,
+            `chatinfo`.`user_id`,
+            `chatinfo`.`content`,
+            `chatinfo`.`topic`
+        FROM
+            `chatinfo`
+        INNER JOIN `star` ON `chatinfo`.`id` = `star`.`chatinfo_id`
+        WHERE
+            `chatinfo`.`user_id` = #{id};
+    </select>
 </mapper>
