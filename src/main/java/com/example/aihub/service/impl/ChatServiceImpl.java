@@ -31,12 +31,9 @@ public class ChatServiceImpl implements ChatService {
     private ArkService arkService;
     @Autowired
     private ChatInfoMapper chatInfoMapper;
-    // @Autowired
-    // private CacheService<List<ChatMessage>> cacheService;
 
     private final String MODEL = "deepseek-r1-250120";
     private final String REASON_PREFIX = "reason: ";
-    // private final Long TTL = 1000 * 60 * 10L; // 10 min
     private List<ChatMessage> chatMessages;
 
     public Flux<String> chat(UserChatRequest userChatReq) {
@@ -47,6 +44,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         Integer chatInfoId;
+        String chatTopic;
         StringBuilder reasonContent = new StringBuilder("");
         StringBuilder assistantContent = new StringBuilder("");
 
@@ -55,11 +53,14 @@ public class ChatServiceImpl implements ChatService {
             ChatInfo newChatInfo = new ChatInfo();
             newChatInfo.setUserId(userChatReq.getUserId());
             newChatInfo.setContent("[]");
+            newChatInfo.setTopic(userChatReq.getMessage());
             chatInfoMapper.insertChatInfo(newChatInfo);
             chatInfoId = newChatInfo.getId();
+            chatTopic = newChatInfo.getTopic();
         } else {
             ChatInfo chatInfo = chatInfoMapper.findChatInfoById(userChatReq.getChatInfoId());
             chatInfoId = chatInfo.getId();
+            chatTopic = chatInfo.getTopic();
             chatMessages = JsonUtils.fromJson(chatInfo.getContent(), new TypeReference<List<ChatMessage>>() {});
         }
 
@@ -111,7 +112,7 @@ public class ChatServiceImpl implements ChatService {
                         UserChatResponse.builder()
                             .type(ChatRespType.METADATA)
                             .chatInfoId(chatInfoId)
-                            .topic(userChatReq.getMessage())
+                            .topic(chatTopic)
                             .build()
                     )),
 

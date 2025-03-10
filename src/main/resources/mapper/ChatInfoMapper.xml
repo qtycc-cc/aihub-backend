@@ -6,14 +6,14 @@
 <mapper namespace="com.example.aihub.mapper.ChatInfoMapper">
     <select id="findAllChatInfos" resultType="ChatInfo">
         SELECT
-            `id`, `user_id`, `content`
+            `id`, `user_id`, `content`, `topic`
         FROM
             `chatinfo`
     </select>
 
     <select id="findChatInfoById" resultType="ChatInfo">
         SELECT
-            `id`, `user_id`, `content`
+            `id`, `user_id`, `content`, `topic`
         FROM
             `chatinfo`
         WHERE
@@ -22,7 +22,7 @@
 
     <select id="findChatInfosByUserId" resultType="ChatInfo">
         SELECT
-            `id`, `user_id`, `content`
+            `id`, `user_id`, `content`, `topic`
         FROM
             `chatinfo`
         WHERE
@@ -31,9 +31,9 @@
 
     <insert id="insertChatInfo" parameterType="ChatInfo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO
-            `chatinfo`(`user_id`, `content`)
+            `chatinfo`(`user_id`, `content`, `topic`)
         VALUES
-            (#{userId}, #{content})
+            (#{userId}, #{content}, `topic`)
     </insert>
 
     <update id="updateChatInfo" parameterType="ChatInfo">
