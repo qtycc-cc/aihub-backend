@@ -11,4 +11,5 @@ public interface UserService {
     ResponseEntity<UserLoginResponse> login(UserRequest userRequest);
     ResponseEntity<UserResponse> register(UserRequest userRequest);
     ResponseEntity<UserResponse> star(UserStarRequest userStarRequest);
+    ResponseEntity<UserResponse> unstar(UserStarRequest userStarRequest);
 }

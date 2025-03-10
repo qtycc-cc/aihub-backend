@@ -3,6 +3,7 @@ package com.example.aihub.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.aihub.pojo.UserLoginResponse;
@@ -33,5 +34,10 @@ public class UserController {
     @PostMapping("/api/v1/star")
     public ResponseEntity<UserResponse> star(@RequestBody UserStarRequest userStarRequest) {
         return userService.star(userStarRequest);
+    }
+
+    @DeleteMapping("/api/v1/star")
+    public ResponseEntity<UserResponse> unstar(@RequestBody UserStarRequest userStarRequest) {
+        return userService.unstar(userStarRequest);
     }
 }

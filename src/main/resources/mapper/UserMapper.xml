@@ -40,4 +40,11 @@
         VALUES
             (#{userId}, #{chatinfoId})
     </insert>
+
+    <delete id="deleteUserStar" parameterType="Star">
+        DELETE FROM
+            `star`
+        WHERE
+            `user_id` = #{userId} AND `chatinfo_id` = #{chatinfoId}
+    </delete>
 </mapper>

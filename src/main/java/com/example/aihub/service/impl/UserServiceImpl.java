@@ -108,4 +108,29 @@ public class UserServiceImpl implements UserService {
                                             .build();
         return ResponseEntity.ok().body(userResponse);
     }
+
+    @Override
+    public ResponseEntity<UserResponse> unstar(UserStarRequest userStarRequest) {
+        if (userStarRequest == null
+                || userStarRequest.getUserId() == null
+                || userStarRequest.getChatInfoId() == null) {
+            throw new IllegalArgumentException("Account or password can not be empty!");
+        }
+        Star star = Star.builder()
+                        .userId(userStarRequest.getUserId())
+                        .chatinfoId(userStarRequest.getChatInfoId())
+                        .build();
+        userMapper.deleteUserStar(star);
+        User user = userMapper.findUserById(star.getUserId());
+        List<ChatInfo> userChatInfos = chatInfoMapper.findChatInfosByUserId(user.getId());
+        List<ChatInfo> userStars = chatInfoMapper.findStarredChatInfosByUserId(user.getId());
+        UserResponse userResponse = UserResponse.builder()
+                                            .id(user.getId())
+                                            .account(user.getAccount())
+                                            .password(user.getPassword())
+                                            .userChatInfos(userChatInfos)
+                                            .userStars(userStars)
+                                            .build();
+        return ResponseEntity.ok().body(userResponse);
+    }
 }
