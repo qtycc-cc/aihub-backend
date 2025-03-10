@@ -2,6 +2,7 @@ package com.example.aihub.mapper;
 
 import java.util.List;
 
+import com.example.aihub.pojo.Star;
 import com.example.aihub.pojo.User;
 
 public interface UserMapper {
@@ -9,4 +10,5 @@ public interface UserMapper {
     User findUserById(Integer id);
     User findUserByAccount(String account);
     void insertUser(User user);
+    void insertUserStar(Star star);
 }

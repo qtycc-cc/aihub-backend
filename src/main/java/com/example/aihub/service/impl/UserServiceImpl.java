@@ -13,10 +13,12 @@ import com.example.aihub.exception.InvalidCredentialsException;
 import com.example.aihub.mapper.ChatInfoMapper;
 import com.example.aihub.mapper.UserMapper;
 import com.example.aihub.pojo.ChatInfo;
+import com.example.aihub.pojo.Star;
 import com.example.aihub.pojo.User;
 import com.example.aihub.pojo.UserLoginResponse;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
+import com.example.aihub.pojo.UserStarRequest;
 import com.example.aihub.service.UserService;
 import com.example.aihub.utils.JWTUtils;
 import com.example.aihub.utils.MD5Utils;
@@ -78,6 +80,31 @@ public class UserServiceImpl implements UserService {
                                             .password(user.getPassword())
                                             .userChatInfos(new ArrayList<>())
                                             .userStars(new ArrayList<>())
+                                            .build();
+        return ResponseEntity.ok().body(userResponse);
+    }
+
+    @Override
+    public ResponseEntity<UserResponse> star(UserStarRequest userStarRequest) {
+        if (userStarRequest == null
+                || userStarRequest.getUserId() == null
+                || userStarRequest.getChatInfoId() == null) {
+            throw new IllegalArgumentException("Account or password can not be empty!");
+        }
+        Star star = Star.builder()
+                        .userId(userStarRequest.getUserId())
+                        .chatinfoId(userStarRequest.getChatInfoId())
+                        .build();
+        userMapper.insertUserStar(star);
+        User user = userMapper.findUserById(star.getUserId());
+        List<ChatInfo> userChatInfos = chatInfoMapper.findChatInfosByUserId(user.getId());
+        List<ChatInfo> userStars = chatInfoMapper.findStarredChatInfosByUserId(user.getId());
+        UserResponse userResponse = UserResponse.builder()
+                                            .id(user.getId())
+                                            .account(user.getAccount())
+                                            .password(user.getPassword())
+                                            .userChatInfos(userChatInfos)
+                                            .userStars(userStars)
                                             .build();
         return ResponseEntity.ok().body(userResponse);
     }

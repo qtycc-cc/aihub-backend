@@ -33,4 +33,11 @@
         VALUES
             (#{account}, #{password})
     </insert>
+
+    <insert id="insertUserStar" parameterType="Star" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+            `star`(`user_id`, `chatinfo_id`)
+        VALUES
+            (#{userId}, #{chatinfoId})
+    </insert>
 </mapper>
