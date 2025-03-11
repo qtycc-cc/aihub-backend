@@ -26,4 +26,4 @@ CREATE TABLE IF NOT EXISTS `star` (
     KEY `fk_star_chatinfo` (`chatinfo_id`),
     CONSTRAINT `fk_star_chatinfo` FOREIGN KEY (`chatinfo_id`) REFERENCES `chatinfo` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `fk_star_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户收藏';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户收藏';
