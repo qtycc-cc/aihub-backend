@@ -23,15 +23,15 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // @ExceptionHandler(IllegalArgumentException.class)
-    // @ResponseBody
-    // public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException e) {
-    //     return ResponseEntity.badRequest().body(
-    //         ExceptionResponse.builder()
-    //                         .reason(e.getMessage())
-    //                         .build()
-    //     );
-    // }
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseBody
+    public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(
+            ExceptionResponse.builder()
+                            .reason(e.getMessage())
+                            .build()
+        );
+    }
 
     @ExceptionHandler(InvalidCredentialsException.class)
     @ResponseBody
