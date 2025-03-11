@@ -1,6 +1,6 @@
 package com.example.aihub.exception;
 
-public class BussinessException extends RuntimeException{
+public class BussinessException extends RuntimeException {
     public BussinessException() {
         super();
     }
