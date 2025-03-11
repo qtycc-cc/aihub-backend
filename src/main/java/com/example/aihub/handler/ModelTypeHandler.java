@@ -37,6 +37,6 @@ public class ModelTypeHandler extends BaseTypeHandler<ModelType> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, ModelType parameter, JdbcType jdbcType)
             throws SQLException {
-                ps.setString(i, parameter.name());
+                ps.setString(i, parameter.getValue());
     }
 }
