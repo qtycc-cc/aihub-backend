@@ -48,7 +48,6 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())
-                                            .password(user.getPassword())
                                             .userChatInfos(userChatInfos)
                                             .userStars(userStars)
                                             .build();
@@ -77,7 +76,6 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())
-                                            .password(user.getPassword())
                                             .userChatInfos(new ArrayList<>())
                                             .userStars(new ArrayList<>())
                                             .build();
@@ -102,7 +100,6 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())
-                                            .password(user.getPassword())
                                             .userChatInfos(userChatInfos)
                                             .userStars(userStars)
                                             .build();
@@ -127,7 +124,6 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())
-                                            .password(user.getPassword())
                                             .userChatInfos(userChatInfos)
                                             .userStars(userStars)
                                             .build();

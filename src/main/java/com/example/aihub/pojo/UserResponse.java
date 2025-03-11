@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 public class UserResponse {
     private Integer id;
     private String account;
-    private String password;
     private List<ChatInfo> userChatInfos;
     private List<ChatInfo> userStars;
 }
