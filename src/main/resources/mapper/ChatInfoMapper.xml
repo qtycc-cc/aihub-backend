@@ -9,6 +9,7 @@
         <result property="userId" column="user_id" />
         <result property="content" column="content" />
         <result property="topic" column="topic" />
+        <!-- typeHandler 不能使用短类名 -->
         <result property="model" column="model" typeHandler="com.example.aihub.handler.ModelTypeHandler" javaType="ModelType" />
     </resultMap>
     <select id="findAllChatInfos" resultMap="chatinfoResultMap">
