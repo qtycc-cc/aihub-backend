@@ -4,25 +4,32 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.aihub.mapper.ChatInfoMapper">
-    <select id="findAllChatInfos" resultType="ChatInfo">
+    <resultMap id="chatinfoResultMap" type="ChatInfo">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id" />
+        <result property="content" column="content" />
+        <result property="topic" column="topic" />
+        <result property="model" column="model" typeHandler="com.example.aihub.handler.ModelTypeHandler" javaType="ModelType" />
+    </resultMap>
+    <select id="findAllChatInfos" resultMap="chatinfoResultMap">
         SELECT
-            `id`, `user_id`, `content`, `topic`
+            `id`, `user_id`, `content`, `topic`, `model`
         FROM
             `chatinfo`
     </select>
 
-    <select id="findChatInfoById" resultType="ChatInfo">
+    <select id="findChatInfoById" resultMap="chatinfoResultMap">
         SELECT
-            `id`, `user_id`, `content`, `topic`
+            `id`, `user_id`, `content`, `topic`, `model`
         FROM
             `chatinfo`
         WHERE
             `id` = #{id}
     </select>
 
-    <select id="findChatInfosByUserId" resultType="ChatInfo">
+    <select id="findChatInfosByUserId" resultMap="chatinfoResultMap">
         SELECT
-            `id`, `user_id`, `content`, `topic`
+            `id`, `user_id`, `content`, `topic`, `model`
         FROM
             `chatinfo`
         WHERE
@@ -31,9 +38,9 @@
 
     <insert id="insertChatInfo" parameterType="ChatInfo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO
-            `chatinfo`(`user_id`, `content`, `topic`)
+            `chatinfo`(`user_id`, `content`, `topic`, `model`)
         VALUES
-            (#{userId}, #{content}, #{topic})
+            (#{userId}, #{content}, #{topic}, #{model})
     </insert>
 
     <update id="updateChatInfo" parameterType="ChatInfo">
@@ -52,12 +59,13 @@
             `id` = #{id}
     </delete>
 
-    <select id="findStarredChatInfosByUserId" resultType="ChatInfo">
+    <select id="findStarredChatInfosByUserId" resultMap="chatinfoResultMap">
         SELECT
             `chatinfo`.`id`,
             `chatinfo`.`user_id`,
             `chatinfo`.`content`,
-            `chatinfo`.`topic`
+            `chatinfo`.`topic`,
+            `chatinfo`.`model`
         FROM
             `chatinfo`
         INNER JOIN `star` ON `chatinfo`.`id` = `star`.`chatinfo_id`

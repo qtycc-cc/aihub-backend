@@ -14,4 +14,5 @@ public class ChatInfo {
     private Integer userId;
     private String content;
     private String topic;
+    private ModelType model;
 }

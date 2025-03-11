@@ -18,4 +18,6 @@ public class UserChatResponse {
     private String topic;
     @Nullable
     private String data;
+    @Nullable
+    private ModelType model;
 }

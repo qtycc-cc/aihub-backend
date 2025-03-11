@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.aihub.exception.InvalidCredentialsException;
+import com.example.aihub.exception.ModelNotEqualException;
 import com.example.aihub.pojo.ExceptionResponse;
 
 @ControllerAdvice
@@ -22,9 +23,19 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    // @ExceptionHandler(IllegalArgumentException.class)
+    // @ResponseBody
+    // public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+    //     return ResponseEntity.badRequest().body(
+    //         ExceptionResponse.builder()
+    //                         .reason(e.getMessage())
+    //                         .build()
+    //     );
+    // }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
     @ResponseBody
-    public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+    public ResponseEntity<ExceptionResponse> handleInvalidCredentialsException(InvalidCredentialsException e) {
         return ResponseEntity.badRequest().body(
             ExceptionResponse.builder()
                             .reason(e.getMessage())
@@ -32,9 +43,9 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(InvalidCredentialsException.class)
+    @ExceptionHandler(ModelNotEqualException.class)
     @ResponseBody
-    public ResponseEntity<ExceptionResponse> handleInvalidCredentialsException(InvalidCredentialsException e) {
+    public ResponseEntity<ExceptionResponse> handleModelNotEqualException(ModelNotEqualException e) {
         return ResponseEntity.badRequest().body(
             ExceptionResponse.builder()
                             .reason(e.getMessage())

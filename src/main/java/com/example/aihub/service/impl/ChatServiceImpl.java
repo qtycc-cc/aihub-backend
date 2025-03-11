@@ -5,12 +5,15 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.example.aihub.exception.ModelNotEqualException;
 import com.example.aihub.mapper.ChatInfoMapper;
 import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.ChatRespType;
+import com.example.aihub.pojo.ModelType;
 import com.example.aihub.pojo.UserChatRequest;
 import com.example.aihub.pojo.UserChatResponse;
 import com.example.aihub.service.ChatService;
@@ -28,23 +31,30 @@ import reactor.core.publisher.Flux;
 @Service
 public class ChatServiceImpl implements ChatService {
     @Autowired
-    private ArkService arkService;
+    @Qualifier("deepseekService")
+    private ArkService deepseekService;
+    @Autowired
+    @Qualifier("doubaoService")
+    private ArkService doubaoService;
     @Autowired
     private ChatInfoMapper chatInfoMapper;
 
-    private final String MODEL = "deepseek-r1-250120";
+    private final String DEEPSEEK_MODEL = "deepseek-r1-250120";
+    private final String DOUBAO_MODEL = "doubao-1-5-pro-256k-250115";
     private final String REASON_PREFIX = "reason: ";
     private List<ChatMessage> chatMessages;
 
     public Flux<String> chat(UserChatRequest userChatReq) {
         if (userChatReq == null
             || StrUtil.isBlank(userChatReq.getMessage())
-            || userChatReq.getUserId() == null) {
+            || userChatReq.getUserId() == null
+            || userChatReq.getModel() == null) {
                 throw new IllegalArgumentException("Request cannot be empty!");
         }
 
         Integer chatInfoId;
         String chatTopic;
+        ModelType model;
         StringBuilder reasonContent = new StringBuilder("");
         StringBuilder assistantContent = new StringBuilder("");
 
@@ -54,13 +64,19 @@ public class ChatServiceImpl implements ChatService {
             newChatInfo.setUserId(userChatReq.getUserId());
             newChatInfo.setContent("[]");
             newChatInfo.setTopic(userChatReq.getMessage());
+            newChatInfo.setModel(userChatReq.getModel());
             chatInfoMapper.insertChatInfo(newChatInfo);
             chatInfoId = newChatInfo.getId();
             chatTopic = newChatInfo.getTopic();
+            model = newChatInfo.getModel();
         } else {
             ChatInfo chatInfo = chatInfoMapper.findChatInfoById(userChatReq.getChatInfoId());
             chatInfoId = chatInfo.getId();
             chatTopic = chatInfo.getTopic();
+            model = chatInfo.getModel();
+            if (!model.equals(userChatReq.getModel())) {
+                throw new ModelNotEqualException("Your model is not equal with history!");
+            }
             chatMessages = JsonUtils.fromJson(chatInfo.getContent(), new TypeReference<List<ChatMessage>>() {});
         }
 
@@ -81,14 +97,14 @@ public class ChatServiceImpl implements ChatService {
         chatMessages.add(userMessage);
         // 创建聊天完成请求
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                .model(MODEL)
+                .model(getModel(userChatReq.getModel()))
                 .messages(chatMessages) // 设置消息列表
                 .build();
 
         // 发送聊天完成请求
         // 返回流式数据
         Flowable<String> flowableResponse = Flowable
-                .fromPublisher(arkService.streamChatCompletion(chatCompletionRequest))
+                .fromPublisher(getService(userChatReq.getModel()).streamChatCompletion(chatCompletionRequest))
                 .map(choice -> {
                     if (choice.getChoices().size() > 0) {
                         ChatMessage message = choice.getChoices().get(0).getMessage();
@@ -113,6 +129,7 @@ public class ChatServiceImpl implements ChatService {
                             .type(ChatRespType.METADATA)
                             .chatInfoId(chatInfoId)
                             .topic(chatTopic)
+                            .model(model)
                             .build()
                     )),
 
@@ -150,6 +167,33 @@ public class ChatServiceImpl implements ChatService {
         }
         chatInfoMapper.deleteChatInfo(id);
         return ResponseEntity.ok().body(JsonUtils.toJson(Map.of("message", "Chat has been deleted!")));
+    }
+
+    private String getModel(ModelType model) {
+        String res;
+        switch (model) {
+            case DEEPSEEK:
+                res = DEEPSEEK_MODEL;
+                break;
+            case DOUBAO:
+                res = DOUBAO_MODEL;
+                break;
+            default:
+                res = DEEPSEEK_MODEL;
+                break;
+        }
+        return res;
+    }
+
+    private ArkService getService(ModelType model) {
+        switch (model) {
+            case DEEPSEEK:
+                return this.deepseekService;
+            case DOUBAO:
+                return this.doubaoService;
+            default:
+                return this.deepseekService;
+        }
     }
 
     private void syncChatInfoToDatabase(UserChatRequest userChatRequest, List<ChatMessage> chatMessages) {

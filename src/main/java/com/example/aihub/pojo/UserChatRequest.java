@@ -22,9 +22,10 @@ public class UserChatRequest {
     @Nullable
     private Integer chatInfoId;
     /**
-     * 是否为新的聊天
+     * 模型类型
+     * 含deepseek-r1, doubao-1.5pro
      */
-    // private boolean newChat;
+    private ModelType Model;
     /**
      * 提示词
      */
