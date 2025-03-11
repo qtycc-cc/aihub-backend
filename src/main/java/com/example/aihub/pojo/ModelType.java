@@ -3,8 +3,8 @@ package com.example.aihub.pojo;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ModelType {
-    DEEPSEEK("deepseek"),
-    DOUBAO("doubao");
+    DEEPSEEK("deepseek-r1"),
+    DOUBAO("doubao-1.5pro");
 
     @JsonValue
     private final String value;
