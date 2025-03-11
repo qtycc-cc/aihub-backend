@@ -12,12 +12,21 @@ import com.volcengine.ark.runtime.service.ArkService;
 @Configuration
 @PropertySource("application.yml")
 public class AIConfig {
-    @Value("${deepseek.api_key}")
-    private String apiKey;
+    @Value("${ai.deepseek.api_key}")
+    private String deepseekApiKey;
+    @Value("${ai.doubao.api_key}")
+    private String doubaoApikey;
 
-    @Bean(destroyMethod = "shutdownExecutor")
-    public ArkService arkService() {
-        return ArkService.builder().apiKey(apiKey)
+    @Bean(name = "deepseekService", destroyMethod = "shutdownExecutor")
+    public ArkService deepseekService() {
+        return ArkService.builder().apiKey(deepseekApiKey)
+                .timeout(Duration.ofMinutes(30))
+                .build();
+    }
+
+    @Bean(name = "doubaoService", destroyMethod = "shutdownExecutor")
+    public ArkService doubaoService() {
+        return ArkService.builder().apiKey(doubaoApikey)
                 .timeout(Duration.ofMinutes(30))
                 .build();
     }
