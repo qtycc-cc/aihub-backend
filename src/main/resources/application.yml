@@ -8,9 +8,13 @@ spring:
         password: ${SPRING_DATASOURCE_PASSWORD}
 mybatis:
     type-aliases-package: com.example.aihub.pojo
+    type-handlers-package: com.example.aihub.handler
     mapper-locations: classpath:mapper/*.xml
     configuration:
         mapUnderscoreToCamelCase: true
 
-deepseek:
-    api_key: 2264080d-8e47-4b0c-9fe8-1849c696bb5e
+ai:
+    deepseek:
+        api_key: 2264080d-8e47-4b0c-9fe8-1849c696bb5e
+    doubao:
+        api_key: f19d6d18-8658-4770-80e5-f9d92622d1e1
