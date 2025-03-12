@@ -5,11 +5,12 @@ import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.example.aihub.exception.AccountHasBeenUsedException;
 import com.example.aihub.exception.InvalidCredentialsException;
+import com.example.aihub.exception.MyIllegalArgumentException;
 import com.example.aihub.mapper.ChatInfoMapper;
 import com.example.aihub.mapper.UserMapper;
 import com.example.aihub.pojo.ChatInfo;
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService {
         if (userRequest == null
                 || StrUtil.isBlank(userRequest.getAccount())
                 || StrUtil.isBlank(userRequest.getPassword())) {
-            throw new IllegalArgumentException("Account or password can not be empty!");
+            throw new MyIllegalArgumentException("Account or password can not be empty!");
         }
         User user = userMapper.findUserByAccount(userRequest.getAccount());
         if (user == null || SaSecureUtil.md5(userRequest.getPassword()).equals(user.getPassword())) {
@@ -58,10 +59,10 @@ public class UserServiceImpl implements UserService {
         if (userRequest == null
                 || StrUtil.isBlank(userRequest.getAccount())
                 || StrUtil.isBlank(userRequest.getPassword())) {
-            throw new IllegalArgumentException("Account or password can not be empty!");
+            throw new MyIllegalArgumentException("Account or password can not be empty!");
         }
         if (userMapper.findUserByAccount(userRequest.getAccount()) != null) {
-            throw new DuplicateKeyException("Account has been registered!");
+            throw new AccountHasBeenUsedException("Account has been registered!");
         }
         User user = new User();
         BeanUtils.copyProperties(userRequest, user);
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<UserResponse> star(Integer chatInfoId) {
         if (chatInfoId == null) {
-            throw new IllegalArgumentException("Account or password can not be empty!");
+            throw new MyIllegalArgumentException("Account or password can not be empty!");
         }
         Star star = Star.builder()
                         .userId(StpUtil.getLoginIdAsInt())
@@ -101,7 +102,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<UserResponse> unstar(Integer chatInfoId) {
         if (chatInfoId == null) {
-            throw new IllegalArgumentException("Account or password can not be empty!");
+            throw new MyIllegalArgumentException("Account or password can not be empty!");
         }
         Star star = Star.builder()
                         .userId(StpUtil.getLoginIdAsInt())

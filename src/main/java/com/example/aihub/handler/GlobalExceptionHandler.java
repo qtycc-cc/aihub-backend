@@ -1,31 +1,32 @@
 package com.example.aihub.handler;
 
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.example.aihub.exception.AccountHasBeenUsedException;
 import com.example.aihub.exception.InvalidCredentialsException;
 import com.example.aihub.exception.ModelNotEqualException;
+import com.example.aihub.exception.MyIllegalArgumentException;
 import com.example.aihub.pojo.ExceptionResponse;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DuplicateKeyException.class)
+    @ExceptionHandler(AccountHasBeenUsedException.class)
     @ResponseBody
-    public ResponseEntity<ExceptionResponse> handleDuplicateKeyException(DuplicateKeyException e) {
-        return ResponseEntity.internalServerError().body(
+    public ResponseEntity<ExceptionResponse> handleAccountHasBeenUsedException(AccountHasBeenUsedException e) {
+        return ResponseEntity.badRequest().body(
             ExceptionResponse.builder()
                             .reason(e.getMessage())
                             .build()
         );
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler(MyIllegalArgumentException.class)
     @ResponseBody
-    public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+    public ResponseEntity<ExceptionResponse> handleMyIllegalArgumentException(MyIllegalArgumentException e) {
         return ResponseEntity.badRequest().body(
             ExceptionResponse.builder()
                             .reason(e.getMessage())

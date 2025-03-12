@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.aihub.exception.ModelNotEqualException;
+import com.example.aihub.exception.MyIllegalArgumentException;
 import com.example.aihub.mapper.ChatInfoMapper;
 import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.ChatRespType;
@@ -49,7 +50,7 @@ public class ChatServiceImpl implements ChatService {
         if (userChatReq == null
             || StrUtil.isBlank(userChatReq.getMessage())
             || userChatReq.getModel() == null) {
-                throw new IllegalArgumentException("Request cannot be empty!");
+                throw new MyIllegalArgumentException("Request cannot be empty!");
         }
 
         Integer chatInfoId;
@@ -163,7 +164,7 @@ public class ChatServiceImpl implements ChatService {
 
     public ResponseEntity<String> deleteChat(Integer id) {
         if (id == null) {
-            throw new IllegalArgumentException("Chat id can not be null");
+            throw new MyIllegalArgumentException("Chat id can not be null");
         }
         chatInfoMapper.deleteChatInfo(id);
         return ResponseEntity.ok().body(JsonUtils.toJson(Map.of("message", "Chat has been deleted!")));
