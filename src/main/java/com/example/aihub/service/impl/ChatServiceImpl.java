@@ -24,6 +24,7 @@ import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
 import com.volcengine.ark.runtime.service.ArkService;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
 import io.reactivex.Flowable;
 import reactor.core.publisher.Flux;
@@ -47,7 +48,6 @@ public class ChatServiceImpl implements ChatService {
     public Flux<String> chat(UserChatRequest userChatReq) {
         if (userChatReq == null
             || StrUtil.isBlank(userChatReq.getMessage())
-            || userChatReq.getUserId() == null
             || userChatReq.getModel() == null) {
                 throw new IllegalArgumentException("Request cannot be empty!");
         }
@@ -61,7 +61,7 @@ public class ChatServiceImpl implements ChatService {
         if (userChatReq.getChatInfoId() == null) {
             chatMessages = new CopyOnWriteArrayList<>();
             ChatInfo newChatInfo = new ChatInfo();
-            newChatInfo.setUserId(userChatReq.getUserId());
+            newChatInfo.setUserId(StpUtil.getLoginIdAsInt());
             newChatInfo.setContent("[]");
             newChatInfo.setTopic(userChatReq.getMessage());
             newChatInfo.setModel(userChatReq.getModel());
@@ -203,7 +203,7 @@ public class ChatServiceImpl implements ChatService {
 
         ChatInfo chatInfo = ChatInfo.builder()
                                 .id(userChatRequest.getChatInfoId())
-                                .userId(userChatRequest.getUserId())
+                                .userId(StpUtil.getLoginIdAsInt())
                                 .content(JsonUtils.toJson(chatMessages))
                                 .build();
 
