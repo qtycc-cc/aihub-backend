@@ -10,6 +10,9 @@ import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
 import com.example.aihub.pojo.UserStarRequest;
 import com.example.aihub.service.UserService;
+
+import cn.dev33.satoken.annotation.SaCheckLogin;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -30,11 +33,13 @@ public class UserController {
         return userService.register(userRequest);
     }
 
+    @SaCheckLogin
     @PostMapping("/api/v1/star")
     public ResponseEntity<UserResponse> star(@RequestBody UserStarRequest userStarRequest) {
         return userService.star(userStarRequest);
     }
 
+    @SaCheckLogin
     @DeleteMapping("/api/v1/star")
     public ResponseEntity<UserResponse> unstar(@RequestBody UserStarRequest userStarRequest) {
         return userService.unstar(userStarRequest);

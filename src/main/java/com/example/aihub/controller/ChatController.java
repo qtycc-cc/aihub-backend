@@ -3,6 +3,9 @@ package com.example.aihub.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.aihub.service.ChatService;
+
+import cn.dev33.satoken.annotation.SaCheckLogin;
+
 import com.example.aihub.pojo.UserChatRequest;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 
 import reactor.core.publisher.Flux;
 
+@SaCheckLogin
 @CrossOrigin
 @RestController
 public class ChatController {
