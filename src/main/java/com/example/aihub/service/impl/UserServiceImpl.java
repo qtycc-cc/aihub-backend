@@ -15,14 +15,13 @@ import com.example.aihub.mapper.UserMapper;
 import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.Star;
 import com.example.aihub.pojo.User;
-import com.example.aihub.pojo.UserLoginResponse;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
 import com.example.aihub.pojo.UserStarRequest;
 import com.example.aihub.service.UserService;
-import com.example.aihub.utils.JWTUtils;
-import com.example.aihub.utils.MD5Utils;
 
+import cn.dev33.satoken.secure.SaSecureUtil;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
 
 @Service
@@ -33,14 +32,14 @@ public class UserServiceImpl implements UserService {
     private ChatInfoMapper chatInfoMapper;
 
     @Override
-    public ResponseEntity<UserLoginResponse> login(UserRequest userRequest) {
+    public ResponseEntity<UserResponse> login(UserRequest userRequest) {
         if (userRequest == null
                 || StrUtil.isBlank(userRequest.getAccount())
                 || StrUtil.isBlank(userRequest.getPassword())) {
             throw new IllegalArgumentException("Account or password can not be empty!");
         }
         User user = userMapper.findUserByAccount(userRequest.getAccount());
-        if (user == null || !MD5Utils.checkPassword(userRequest.getPassword(), user.getPassword())) {
+        if (user == null || SaSecureUtil.md5(userRequest.getPassword()).equals(user.getPassword())) {
             throw new InvalidCredentialsException("Account or password wrong!");
         }
         List<ChatInfo> userChatInfos = chatInfoMapper.findChatInfosByUserId(user.getId());
@@ -51,12 +50,8 @@ public class UserServiceImpl implements UserService {
                                             .userChatInfos(userChatInfos)
                                             .userStars(userStars)
                                             .build();
-        UserLoginResponse userLoginResponse = new UserLoginResponse();
-        BeanUtils.copyProperties(userResponse, userLoginResponse);
-        userLoginResponse.setAccessToken(JWTUtils.generateToken(user.getAccount()));
-        userLoginResponse.setRefreshToken(JWTUtils.generateRefreshToken(user.getAccount()));
-
-        return ResponseEntity.ok().body(userLoginResponse);
+        StpUtil.login(user.getId());
+        return ResponseEntity.ok().body(userResponse);
     }
 
     @Override
@@ -71,7 +66,7 @@ public class UserServiceImpl implements UserService {
         }
         User user = new User();
         BeanUtils.copyProperties(userRequest, user);
-        user.setPassword(MD5Utils.getMD5String(userRequest.getPassword()));
+        user.setPassword(SaSecureUtil.md5(userRequest.getPassword()));
         userMapper.insertUser(user);
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
