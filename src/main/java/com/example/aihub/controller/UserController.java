@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
-import com.example.aihub.pojo.UserStarRequest;
 import com.example.aihub.service.UserService;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
@@ -34,14 +34,14 @@ public class UserController {
     }
 
     @SaCheckLogin
-    @PostMapping("/api/v1/star")
-    public ResponseEntity<UserResponse> star(@RequestBody UserStarRequest userStarRequest) {
-        return userService.star(userStarRequest);
+    @PostMapping("/api/v1/star/{chatInfoId}")
+    public ResponseEntity<UserResponse> star(@PathVariable Integer chatInfoId) {
+        return userService.star(chatInfoId);
     }
 
     @SaCheckLogin
-    @DeleteMapping("/api/v1/star")
-    public ResponseEntity<UserResponse> unstar(@RequestBody UserStarRequest userStarRequest) {
-        return userService.unstar(userStarRequest);
+    @DeleteMapping("/api/v1/star/{chatInfoId}")
+    public ResponseEntity<UserResponse> unstar(@PathVariable Integer chatInfoId) {
+        return userService.unstar(chatInfoId);
     }
 }

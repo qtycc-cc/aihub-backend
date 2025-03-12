@@ -4,11 +4,10 @@ import org.springframework.http.ResponseEntity;
 
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
-import com.example.aihub.pojo.UserStarRequest;
 
 public interface UserService {
     ResponseEntity<UserResponse> login(UserRequest userRequest);
     ResponseEntity<UserResponse> register(UserRequest userRequest);
-    ResponseEntity<UserResponse> star(UserStarRequest userStarRequest);
-    ResponseEntity<UserResponse> unstar(UserStarRequest userStarRequest);
+    ResponseEntity<UserResponse> star(Integer chatInfoId);
+    ResponseEntity<UserResponse> unstar(Integer chatInfoId);
 }

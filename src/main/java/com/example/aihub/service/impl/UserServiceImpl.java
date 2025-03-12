@@ -17,7 +17,6 @@ import com.example.aihub.pojo.Star;
 import com.example.aihub.pojo.User;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
-import com.example.aihub.pojo.UserStarRequest;
 import com.example.aihub.service.UserService;
 
 import cn.dev33.satoken.secure.SaSecureUtil;
@@ -78,15 +77,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<UserResponse> star(UserStarRequest userStarRequest) {
-        if (userStarRequest == null
-                || userStarRequest.getUserId() == null
-                || userStarRequest.getChatInfoId() == null) {
+    public ResponseEntity<UserResponse> star(Integer chatInfoId) {
+        if (chatInfoId == null) {
             throw new IllegalArgumentException("Account or password can not be empty!");
         }
         Star star = Star.builder()
-                        .userId(userStarRequest.getUserId())
-                        .chatinfoId(userStarRequest.getChatInfoId())
+                        .userId(StpUtil.getLoginIdAsInt())
+                        .chatinfoId(chatInfoId)
                         .build();
         userMapper.insertUserStar(star);
         User user = userMapper.findUserById(star.getUserId());
@@ -102,15 +99,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<UserResponse> unstar(UserStarRequest userStarRequest) {
-        if (userStarRequest == null
-                || userStarRequest.getUserId() == null
-                || userStarRequest.getChatInfoId() == null) {
+    public ResponseEntity<UserResponse> unstar(Integer chatInfoId) {
+        if (chatInfoId == null) {
             throw new IllegalArgumentException("Account or password can not be empty!");
         }
         Star star = Star.builder()
-                        .userId(userStarRequest.getUserId())
-                        .chatinfoId(userStarRequest.getChatInfoId())
+                        .userId(StpUtil.getLoginIdAsInt())
+                        .chatinfoId(chatInfoId)
                         .build();
         userMapper.deleteUserStar(star);
         User user = userMapper.findUserById(star.getUserId());
