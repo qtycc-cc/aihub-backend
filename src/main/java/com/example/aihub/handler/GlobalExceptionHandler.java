@@ -9,7 +9,10 @@ import com.example.aihub.exception.AccountHasBeenUsedException;
 import com.example.aihub.exception.InvalidCredentialsException;
 import com.example.aihub.exception.ModelNotEqualException;
 import com.example.aihub.exception.MyIllegalArgumentException;
+import com.example.aihub.exception.PermissionDeniedException;
 import com.example.aihub.pojo.ExceptionResponse;
+
+import cn.dev33.satoken.exception.NotLoginException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -44,9 +47,29 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PermissionDeniedException.class)
+    @ResponseBody
+    public ResponseEntity<ExceptionResponse> handlePermissionDeniedException(PermissionDeniedException e) {
+        return ResponseEntity.badRequest().body(
+            ExceptionResponse.builder()
+                            .reason(e.getMessage())
+                            .build()
+        );
+    }
+
     @ExceptionHandler(ModelNotEqualException.class)
     @ResponseBody
     public ResponseEntity<ExceptionResponse> handleModelNotEqualException(ModelNotEqualException e) {
+        return ResponseEntity.badRequest().body(
+            ExceptionResponse.builder()
+                            .reason(e.getMessage())
+                            .build()
+        );
+    }
+
+    @ExceptionHandler(NotLoginException.class)
+    @ResponseBody
+    public ResponseEntity<ExceptionResponse> handleNotLoginException(NotLoginException e) {
         return ResponseEntity.badRequest().body(
             ExceptionResponse.builder()
                             .reason(e.getMessage())

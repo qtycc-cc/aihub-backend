@@ -8,7 +8,6 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 
 import com.example.aihub.pojo.UserChatRequest;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Flux;
 
 @SaCheckLogin
-@CrossOrigin
 @RestController
 public class ChatController {
     @Autowired

@@ -73,4 +73,13 @@
         WHERE
             `chatinfo`.`user_id` = #{id};
     </select>
+
+    <select id="findUserIdById">
+        SELECT
+            `user_id`
+        FROM
+            `chatinfo`
+        WHERE
+            `id` = #{id}
+    </select>
 </mapper>

@@ -18,6 +18,7 @@ import com.example.aihub.pojo.ModelType;
 import com.example.aihub.pojo.UserChatRequest;
 import com.example.aihub.pojo.UserChatResponse;
 import com.example.aihub.service.ChatService;
+import com.example.aihub.service.ResourceService;
 import com.example.aihub.utils.JsonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
@@ -31,7 +32,7 @@ import io.reactivex.Flowable;
 import reactor.core.publisher.Flux;
 
 @Service
-public class ChatServiceImpl implements ChatService {
+public class ChatServiceImpl implements ChatService, ResourceService {
     @Autowired
     @Qualifier("deepseekService")
     private ArkService deepseekService;
@@ -46,6 +47,7 @@ public class ChatServiceImpl implements ChatService {
     private final String REASON_PREFIX = "reason: ";
     private List<ChatMessage> chatMessages;
 
+    @Override
     public Flux<String> chat(UserChatRequest userChatReq) {
         if (userChatReq == null
             || StrUtil.isBlank(userChatReq.getMessage())
@@ -53,6 +55,7 @@ public class ChatServiceImpl implements ChatService {
                 throw new MyIllegalArgumentException("Request cannot be empty!");
         }
 
+        Integer userId = StpUtil.getLoginIdAsInt();
         Integer chatInfoId;
         String chatTopic;
         ModelType model;
@@ -62,7 +65,7 @@ public class ChatServiceImpl implements ChatService {
         if (userChatReq.getChatInfoId() == null) {
             chatMessages = new CopyOnWriteArrayList<>();
             ChatInfo newChatInfo = new ChatInfo();
-            newChatInfo.setUserId(StpUtil.getLoginIdAsInt());
+            newChatInfo.setUserId(userId);
             newChatInfo.setContent("[]");
             newChatInfo.setTopic(userChatReq.getMessage());
             newChatInfo.setModel(userChatReq.getModel());
@@ -158,16 +161,22 @@ public class ChatServiceImpl implements ChatService {
                                                 .content(assistantContent.toString())
                                                 .build());
                     userChatReq.setChatInfoId(chatInfoId);
-                    syncChatInfoToDatabase(userChatReq, chatMessages);
+                    syncChatInfoToDatabase(userId, userChatReq, chatMessages);
                 });
     }
 
+    @Override
     public ResponseEntity<String> deleteChat(Integer id) {
         if (id == null) {
             throw new MyIllegalArgumentException("Chat id can not be null");
         }
         chatInfoMapper.deleteChatInfo(id);
         return ResponseEntity.ok().body(JsonUtils.toJson(Map.of("message", "Chat has been deleted!")));
+    }
+
+    @Override
+    public Integer getOwnerIdById(Integer id) {
+        return chatInfoMapper.findUserIdById(id);
     }
 
     private String getModel(ModelType model) {
@@ -197,14 +206,14 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
-    private void syncChatInfoToDatabase(UserChatRequest userChatRequest, List<ChatMessage> chatMessages) {
+    private void syncChatInfoToDatabase(Integer userId, UserChatRequest userChatRequest, List<ChatMessage> chatMessages) {
         if (chatMessages == null) {
             return;
         }
 
         ChatInfo chatInfo = ChatInfo.builder()
                                 .id(userChatRequest.getChatInfoId())
-                                .userId(StpUtil.getLoginIdAsInt())
+                                .userId(userId)
                                 .content(JsonUtils.toJson(chatMessages))
                                 .build();
 

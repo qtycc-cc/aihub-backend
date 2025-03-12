@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.example.aihub.annotation.CheckDataOwner;
 import com.example.aihub.exception.AccountHasBeenUsedException;
 import com.example.aihub.exception.InvalidCredentialsException;
 import com.example.aihub.exception.MyIllegalArgumentException;
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserService {
             throw new MyIllegalArgumentException("Account or password can not be empty!");
         }
         User user = userMapper.findUserByAccount(userRequest.getAccount());
-        if (user == null || SaSecureUtil.md5(userRequest.getPassword()).equals(user.getPassword())) {
+        if (user == null || !SaSecureUtil.md5(userRequest.getPassword()).equals(user.getPassword())) {
             throw new InvalidCredentialsException("Account or password wrong!");
         }
         List<ChatInfo> userChatInfos = chatInfoMapper.findChatInfosByUserId(user.getId());
@@ -78,6 +79,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CheckDataOwner(serviceClass = ChatServiceImpl.class)
     public ResponseEntity<UserResponse> star(Integer chatInfoId) {
         if (chatInfoId == null) {
             throw new MyIllegalArgumentException("Account or password can not be empty!");
@@ -100,6 +102,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CheckDataOwner(serviceClass = ChatServiceImpl.class)
     public ResponseEntity<UserResponse> unstar(Integer chatInfoId) {
         if (chatInfoId == null) {
             throw new MyIllegalArgumentException("Account or password can not be empty!");
