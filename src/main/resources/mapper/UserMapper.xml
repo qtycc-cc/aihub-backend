@@ -47,4 +47,10 @@
         WHERE
             `user_id` = #{userId} AND `chatinfo_id` = #{chatinfoId}
     </delete>
+
+    <update id="updateUserApiKey" parameterType="User">
+        UPDATE `user`
+        SET `api_key` = #{apiKey}
+        WHERE `id` = #{id}
+    </update>
 </mapper>

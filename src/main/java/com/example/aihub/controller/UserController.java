@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
+import com.example.aihub.pojo.UserSetApiKeyRequest;
 import com.example.aihub.service.UserService;
 import com.example.aihub.utils.JsonUtils;
 
@@ -30,6 +31,12 @@ public class UserController {
     @GetMapping("/api/v1/user")
     public ResponseEntity<UserResponse> getUserInfo() {
         return userService.getUserInfo();
+    }
+
+    @SaCheckLogin
+    @PostMapping("/api/v1/apikey")
+    public ResponseEntity<UserResponse> updateUserInfo(@RequestBody UserSetApiKeyRequest userSetApiKeyRequest) {
+        return userService.updateUserApiKey(userSetApiKeyRequest);
     }
 
     @GetMapping("/api/v1/logout")

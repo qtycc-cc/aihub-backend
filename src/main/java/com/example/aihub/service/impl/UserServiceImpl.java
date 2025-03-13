@@ -19,6 +19,7 @@ import com.example.aihub.pojo.Star;
 import com.example.aihub.pojo.User;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
+import com.example.aihub.pojo.UserSetApiKeyRequest;
 import com.example.aihub.service.UserService;
 
 import cn.dev33.satoken.secure.SaSecureUtil;
@@ -140,6 +141,22 @@ public class UserServiceImpl implements UserService {
                                             .apiKey(user.getApiKey())
                                             .userChatInfos(userChatInfos)
                                             .userStars(userStars)
+                                            .build();
+        return ResponseEntity.ok().body(userResponse);
+    }
+
+    @Override
+    public ResponseEntity<UserResponse> updateUserApiKey(UserSetApiKeyRequest userSetApiKeyRequest) {
+        User user = (User) StpUtil.getSession().get("currentUser");
+        if (userSetApiKeyRequest == null || StrUtil.isBlank(userSetApiKeyRequest.getApiKey())) {
+            throw new MyIllegalArgumentException("Api key can not be empty!");
+        }
+        user.setApiKey(userSetApiKeyRequest.getApiKey());
+        userMapper.updateUserApiKey(user);
+        UserResponse userResponse = UserResponse.builder()
+                                            .id(user.getId())
+                                            .account(user.getAccount())
+                                            .apiKey(user.getApiKey())
                                             .build();
         return ResponseEntity.ok().body(userResponse);
     }

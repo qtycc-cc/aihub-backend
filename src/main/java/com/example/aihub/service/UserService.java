@@ -4,9 +4,11 @@ import org.springframework.http.ResponseEntity;
 
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
+import com.example.aihub.pojo.UserSetApiKeyRequest;
 
 public interface UserService {
     ResponseEntity<UserResponse> getUserInfo();
+    ResponseEntity<UserResponse> updateUserApiKey(UserSetApiKeyRequest userSetApiKeyRequest);
     ResponseEntity<UserResponse> login(UserRequest userRequest);
     ResponseEntity<UserResponse> register(UserRequest userRequest);
     ResponseEntity<UserResponse> star(Integer chatInfoId);
