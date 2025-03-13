@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.example.aihub.annotation.CheckDataOwner;
 import com.example.aihub.exception.ModelNotEqualException;
 import com.example.aihub.exception.MyIllegalArgumentException;
 import com.example.aihub.mapper.ChatInfoMapper;
@@ -48,6 +49,7 @@ public class ChatServiceImpl implements ChatService, ResourceService {
     private List<ChatMessage> chatMessages;
 
     @Override
+    @CheckDataOwner(serviceClass = ChatServiceImpl.class, idField = "chatInfoId")
     public Flux<String> chat(UserChatRequest userChatReq) {
         if (userChatReq == null
             || StrUtil.isBlank(userChatReq.getMessage())
@@ -166,6 +168,7 @@ public class ChatServiceImpl implements ChatService, ResourceService {
     }
 
     @Override
+    @CheckDataOwner(serviceClass = ChatServiceImpl.class)
     public ResponseEntity<String> deleteChat(Integer id) {
         if (id == null) {
             throw new MyIllegalArgumentException("Chat id can not be null");

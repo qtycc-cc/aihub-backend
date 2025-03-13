@@ -33,7 +33,7 @@ public class DataOwnerAspect {
         Integer ownerId = service.getOwnerIdById(targetId);
         Integer userId = StpUtil.getLoginIdAsInt();
 
-        if (!userId.equals(ownerId) && !StpUtil.hasRole("admin")) {
+        if (ownerId != null && !userId.equals(ownerId) && !StpUtil.hasRole("admin")) {
             throw new PermissionDeniedException("You cannot access this resource!");
         }
 
