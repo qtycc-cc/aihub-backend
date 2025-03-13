@@ -1,5 +1,6 @@
 package com.example.aihub.handler;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -50,7 +51,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PermissionDeniedException.class)
     @ResponseBody
     public ResponseEntity<ExceptionResponse> handlePermissionDeniedException(PermissionDeniedException e) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
             ExceptionResponse.builder()
                             .reason(e.getMessage())
                             .build()
@@ -70,7 +71,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotLoginException.class)
     @ResponseBody
     public ResponseEntity<ExceptionResponse> handleNotLoginException(NotLoginException e) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
             ExceptionResponse.builder()
                             .reason(e.getMessage())
                             .build()
