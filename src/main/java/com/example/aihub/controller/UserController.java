@@ -14,12 +14,19 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 
 
 @RestController
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @SaCheckLogin
+    @GetMapping("/api/v1/user")
+    public ResponseEntity<UserResponse> getUserInfo() {
+        return userService.getUserInfo();
+    }
 
     @PostMapping("/api/v1/login")
     public ResponseEntity<UserResponse> login(@RequestBody UserRequest userRequest) {

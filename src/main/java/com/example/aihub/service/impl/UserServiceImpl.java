@@ -33,6 +33,21 @@ public class UserServiceImpl implements UserService {
     private ChatInfoMapper chatInfoMapper;
 
     @Override
+    public ResponseEntity<UserResponse> getUserInfo() {
+        Integer userId = StpUtil.getLoginIdAsInt();
+        User user = userMapper.findUserById(userId);
+        List<ChatInfo> userChatInfos = chatInfoMapper.findChatInfosByUserId(user.getId());
+        List<ChatInfo> userStars = chatInfoMapper.findStarredChatInfosByUserId(user.getId());
+        UserResponse userResponse = UserResponse.builder()
+                                            .id(user.getId())
+                                            .account(user.getAccount())
+                                            .userChatInfos(userChatInfos)
+                                            .userStars(userStars)
+                                            .build();
+        return ResponseEntity.ok().body(userResponse);
+    }
+
+    @Override
     public ResponseEntity<UserResponse> login(UserRequest userRequest) {
         if (userRequest == null
                 || StrUtil.isBlank(userRequest.getAccount())

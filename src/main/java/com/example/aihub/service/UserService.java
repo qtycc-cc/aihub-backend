@@ -6,6 +6,7 @@ import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
 
 public interface UserService {
+    ResponseEntity<UserResponse> getUserInfo();
     ResponseEntity<UserResponse> login(UserRequest userRequest);
     ResponseEntity<UserResponse> register(UserRequest userRequest);
     ResponseEntity<UserResponse> star(Integer chatInfoId);
