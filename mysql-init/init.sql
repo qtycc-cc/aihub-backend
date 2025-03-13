@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `id` int NOT NULL AUTO_INCREMENT,
     `account` varchar(250) NOT NULL,
     `password` varchar(250) NOT NULL,
+    `api_key` varchar(250) DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_user_account` (`account`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
