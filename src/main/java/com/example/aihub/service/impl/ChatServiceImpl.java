@@ -3,13 +3,16 @@ package com.example.aihub.service.impl;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.aihub.annotation.CheckDataOwner;
+import com.example.aihub.exception.BussinessException;
 import com.example.aihub.exception.ModelNotEqualException;
 import com.example.aihub.exception.MyIllegalArgumentException;
 import com.example.aihub.exception.PermissionDeniedException;
@@ -25,6 +28,7 @@ import com.example.aihub.service.ResourceService;
 import com.example.aihub.utils.JsonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
+import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionResult;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
 import com.volcengine.ark.runtime.service.ArkService;
@@ -37,9 +41,13 @@ import reactor.core.publisher.Flux;
 @Service
 public class ChatServiceImpl implements ChatService, ResourceService {
     private ArkService arkService;
+    private ArkService topicGenerationService;
     @Autowired
     private ChatInfoMapper chatInfoMapper;
 
+    private final String GET_TOPIC_PROMPT = """
+            你是一名擅长会话的助理，你需要将用户的会话总结为 10 个字以内的标题，标题语言与用户的首要语言一致，不要使用标点符号和其他特殊符号
+            """;
     private final String DEEPSEEK_MODEL = "deepseek-r1-250120";
     private final String DOUBAO_MODEL = "doubao-1-5-pro-256k-250115";
     private final String REASON_PREFIX = "reason: ";
@@ -49,12 +57,12 @@ public class ChatServiceImpl implements ChatService, ResourceService {
     @CheckDataOwner(serviceClass = ChatServiceImpl.class, idField = "chatInfoId")
     public Flux<String> chat(UserChatRequest userChatReq) {
         if (userChatReq == null
-            || StrUtil.isBlank(userChatReq.getMessage())
-            || userChatReq.getModel() == null) {
-                throw new MyIllegalArgumentException("Request cannot be empty!");
+                || StrUtil.isBlank(userChatReq.getMessage())
+                || userChatReq.getModel() == null) {
+            throw new MyIllegalArgumentException("Request cannot be empty!");
         }
 
-        User currentUser = (User)StpUtil.getSession().get("currentUser");
+        User currentUser = (User) StpUtil.getSession().get("currentUser");
 
         String apiKey = currentUser.getApiKey();
 
@@ -74,16 +82,16 @@ public class ChatServiceImpl implements ChatService, ResourceService {
         StringBuilder assistantContent = new StringBuilder("");
 
         if (userChatReq.getChatInfoId() == null) {
+            chatTopic = getTopic(userChatReq.getMessage(), apiKey); // 创建新会话的时候需要创建topic
             chatMessages = new CopyOnWriteArrayList<>();
             ChatInfo newChatInfo = ChatInfo.builder()
-                                            .userId(userId)
-                                            .content("[]")
-                                            .topic(userChatReq.getMessage())
-                                            .model(userChatReq.getModel())
-                                            .build();
+                    .userId(userId)
+                    .content("[]")
+                    .topic(chatTopic)
+                    .model(userChatReq.getModel())
+                    .build();
             chatInfoMapper.insertChatInfo(newChatInfo);
             chatInfoId = newChatInfo.getId();
-            chatTopic = newChatInfo.getTopic();
             model = newChatInfo.getModel();
         } else {
             ChatInfo chatInfo = chatInfoMapper.findChatInfoById(userChatReq.getChatInfoId());
@@ -93,7 +101,8 @@ public class ChatServiceImpl implements ChatService, ResourceService {
             if (!model.equals(userChatReq.getModel())) {
                 throw new ModelNotEqualException("Your model is not equal with history!");
             }
-            chatMessages = JsonUtils.fromJson(chatInfo.getContent(), new TypeReference<List<ChatMessage>>() {});
+            chatMessages = JsonUtils.fromJson(chatInfo.getContent(), new TypeReference<List<ChatMessage>>() {
+            });
         }
 
         // 提示词
@@ -142,36 +151,34 @@ public class ChatServiceImpl implements ChatService, ResourceService {
                 // 1️⃣ 先返回聊天的元数据（ID、主题等）
                 Flux.just(JsonUtils.toJson(
                         UserChatResponse.builder()
-                            .type(ChatRespType.METADATA)
-                            .chatInfoId(chatInfoId)
-                            .topic(chatTopic)
-                            .model(model)
-                            .build()
-                    )),
+                                .type(ChatRespType.METADATA)
+                                .chatInfoId(chatInfoId)
+                                .topic(chatTopic)
+                                .model(model)
+                                .build())),
 
                 // 2️⃣ 然后流式返回消息内容
                 Flux.from(flowableResponse)
                         .map(content -> JsonUtils.toJson(
-                            UserChatResponse.builder()
-                                .type(ChatRespType.MESSAGE)
-                                .data(content)
-                                .build()
-                        )),
+                                UserChatResponse.builder()
+                                        .type(ChatRespType.MESSAGE)
+                                        .data(content)
+                                        .build())),
 
                 // 3️⃣ 结束标志，告诉前端流结束了
                 Flux.just(JsonUtils.toJson(
-                    UserChatResponse.builder()
+                        UserChatResponse.builder()
                                 .type(ChatRespType.END)
-                                .build()
-                ))).doOnComplete(() -> {
+                                .build())))
+                .doOnComplete(() -> {
                     chatMessages.add(ChatMessage.builder()
-                                                .role(ChatMessageRole.ASSISTANT)
-                                                .reasoningContent(reasonContent.toString())
-                                                .build());
+                            .role(ChatMessageRole.ASSISTANT)
+                            .reasoningContent(reasonContent.toString())
+                            .build());
                     chatMessages.add(ChatMessage.builder()
-                                                .role(ChatMessageRole.ASSISTANT)
-                                                .content(assistantContent.toString())
-                                                .build());
+                            .role(ChatMessageRole.ASSISTANT)
+                            .content(assistantContent.toString())
+                            .build());
                     userChatReq.setChatInfoId(chatInfoId);
                     syncChatInfoToDatabase(userId, userChatReq, chatMessages);
                 });
@@ -192,6 +199,37 @@ public class ChatServiceImpl implements ChatService, ResourceService {
         return chatInfoMapper.findUserIdById(id);
     }
 
+    private String getTopic(String message, String apiKey) {
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            List<ChatMessage> messages = new CopyOnWriteArrayList<>();
+            ChatMessage sysMessage = ChatMessage.builder()
+                    .role(ChatMessageRole.SYSTEM)
+                    .content(GET_TOPIC_PROMPT)
+                    .build();
+            messages.add(sysMessage);
+            ChatMessage titleMessage = ChatMessage.builder()
+                    .role(ChatMessageRole.USER)
+                    .content(message)
+                    .build();
+            messages.add(titleMessage);
+            ChatCompletionRequest request = ChatCompletionRequest.builder()
+                    .model(DOUBAO_MODEL) // 使用成本较低的模型
+                    .messages(messages)
+                    .build();
+            topicGenerationService = ArkService.builder().apiKey(apiKey)
+                    .timeout(Duration.ofMinutes(30))
+                    .build();
+            ChatCompletionResult result = topicGenerationService.createChatCompletion(request);
+            String content = (String) result.getChoices().get(0).getMessage().getContent();
+            return content.replaceAll("\"", "").trim();
+        });
+        try {
+            return future.get(8, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            throw new BussinessException();
+        }
+    }
+
     private String getModel(ModelType model) {
         String res;
         switch (model) {
@@ -208,16 +246,17 @@ public class ChatServiceImpl implements ChatService, ResourceService {
         return res;
     }
 
-    private void syncChatInfoToDatabase(Integer userId, UserChatRequest userChatRequest, List<ChatMessage> chatMessages) {
+    private void syncChatInfoToDatabase(Integer userId, UserChatRequest userChatRequest,
+            List<ChatMessage> chatMessages) {
         if (chatMessages == null) {
             return;
         }
 
         ChatInfo chatInfo = ChatInfo.builder()
-                                .id(userChatRequest.getChatInfoId())
-                                .userId(userId)
-                                .content(JsonUtils.toJson(chatMessages))
-                                .build();
+                .id(userChatRequest.getChatInfoId())
+                .userId(userId)
+                .content(JsonUtils.toJson(chatMessages))
+                .build();
 
         if (chatInfo.getId() == null) {
             chatInfoMapper.insertChatInfo(chatInfo);

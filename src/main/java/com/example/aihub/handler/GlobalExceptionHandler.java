@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.aihub.exception.AccountHasBeenUsedException;
+import com.example.aihub.exception.BussinessException;
 import com.example.aihub.exception.InvalidCredentialsException;
 import com.example.aihub.exception.ModelNotEqualException;
 import com.example.aihub.exception.MyIllegalArgumentException;
@@ -72,6 +73,16 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResponseEntity<ExceptionResponse> handleNotLoginException(NotLoginException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+            ExceptionResponse.builder()
+                            .reason(e.getMessage())
+                            .build()
+        );
+    }
+
+    @ExceptionHandler(BussinessException.class)
+    @ResponseBody
+    public ResponseEntity<ExceptionResponse> handleBusinessException(BussinessException e) {
+        return ResponseEntity.internalServerError().body(
             ExceptionResponse.builder()
                             .reason(e.getMessage())
                             .build()
