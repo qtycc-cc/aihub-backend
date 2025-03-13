@@ -5,13 +5,13 @@
 <mapper namespace="com.example.aihub.mapper.UserMapper">
     <select id="findAllUsers" resultType="User">
         SELECT
-            `id`, `account`, `password`
+            `id`, `account`, `password`, `api_key`
         FROM
             `user`
     </select>
     <select id="findUserById" resultType="User">
         SELECT
-            `id`, `account`, `password`
+            `id`, `account`, `password`, `api_key`
         FROM
             `user`
         WHERE
@@ -20,7 +20,7 @@
 
     <select id="findUserByAccount" resultType="User">
         SELECT
-            `id`, `account`, `password`
+            `id`, `account`, `password`, `api_key`
         FROM
             `user`
         WHERE

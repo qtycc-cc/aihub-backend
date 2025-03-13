@@ -41,6 +41,7 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())
+                                            .apiKey(user.getApiKey())
                                             .userChatInfos(userChatInfos)
                                             .userStars(userStars)
                                             .build();
@@ -63,6 +64,7 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())
+                                            .apiKey(user.getApiKey())
                                             .userChatInfos(userChatInfos)
                                             .userStars(userStars)
                                             .build();
@@ -110,6 +112,7 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())
+                                            .apiKey(user.getApiKey())
                                             .userChatInfos(userChatInfos)
                                             .userStars(userStars)
                                             .build();
@@ -133,6 +136,7 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())
+                                            .apiKey(user.getApiKey())
                                             .userChatInfos(userChatInfos)
                                             .userStars(userStars)
                                             .build();

@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class UserResponse {
     private Integer id;
     private String account;
+    private String apiKey;
     private List<ChatInfo> userChatInfos;
     private List<ChatInfo> userStars;
 }
