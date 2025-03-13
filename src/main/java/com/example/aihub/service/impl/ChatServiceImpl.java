@@ -1,21 +1,23 @@
 package com.example.aihub.service.impl;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.aihub.annotation.CheckDataOwner;
 import com.example.aihub.exception.ModelNotEqualException;
 import com.example.aihub.exception.MyIllegalArgumentException;
+import com.example.aihub.exception.PermissionDeniedException;
 import com.example.aihub.mapper.ChatInfoMapper;
 import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.ChatRespType;
 import com.example.aihub.pojo.ModelType;
+import com.example.aihub.pojo.User;
 import com.example.aihub.pojo.UserChatRequest;
 import com.example.aihub.pojo.UserChatResponse;
 import com.example.aihub.service.ChatService;
@@ -34,12 +36,7 @@ import reactor.core.publisher.Flux;
 
 @Service
 public class ChatServiceImpl implements ChatService, ResourceService {
-    @Autowired
-    @Qualifier("deepseekService")
-    private ArkService deepseekService;
-    @Autowired
-    @Qualifier("doubaoService")
-    private ArkService doubaoService;
+    private ArkService arkService;
     @Autowired
     private ChatInfoMapper chatInfoMapper;
 
@@ -57,6 +54,18 @@ public class ChatServiceImpl implements ChatService, ResourceService {
                 throw new MyIllegalArgumentException("Request cannot be empty!");
         }
 
+        User currentUser = (User)StpUtil.getSession().get("currentUser");
+
+        String apiKey = currentUser.getApiKey();
+
+        if (apiKey == null) {
+            throw new PermissionDeniedException("You do not have correct apikey!");
+        }
+
+        arkService = ArkService.builder().apiKey(apiKey)
+                .timeout(Duration.ofMinutes(30))
+                .build();
+
         Integer userId = StpUtil.getLoginIdAsInt();
         Integer chatInfoId;
         String chatTopic;
@@ -66,11 +75,12 @@ public class ChatServiceImpl implements ChatService, ResourceService {
 
         if (userChatReq.getChatInfoId() == null) {
             chatMessages = new CopyOnWriteArrayList<>();
-            ChatInfo newChatInfo = new ChatInfo();
-            newChatInfo.setUserId(userId);
-            newChatInfo.setContent("[]");
-            newChatInfo.setTopic(userChatReq.getMessage());
-            newChatInfo.setModel(userChatReq.getModel());
+            ChatInfo newChatInfo = ChatInfo.builder()
+                                            .userId(userId)
+                                            .content("[]")
+                                            .topic(userChatReq.getMessage())
+                                            .model(userChatReq.getModel())
+                                            .build();
             chatInfoMapper.insertChatInfo(newChatInfo);
             chatInfoId = newChatInfo.getId();
             chatTopic = newChatInfo.getTopic();
@@ -110,7 +120,7 @@ public class ChatServiceImpl implements ChatService, ResourceService {
         // 发送聊天完成请求
         // 返回流式数据
         Flowable<String> flowableResponse = Flowable
-                .fromPublisher(getService(userChatReq.getModel()).streamChatCompletion(chatCompletionRequest))
+                .fromPublisher(arkService.streamChatCompletion(chatCompletionRequest))
                 .map(choice -> {
                     if (choice.getChoices().size() > 0) {
                         ChatMessage message = choice.getChoices().get(0).getMessage();
@@ -196,17 +206,6 @@ public class ChatServiceImpl implements ChatService, ResourceService {
                 break;
         }
         return res;
-    }
-
-    private ArkService getService(ModelType model) {
-        switch (model) {
-            case DEEPSEEK:
-                return this.deepseekService;
-            case DOUBAO:
-                return this.doubaoService;
-            default:
-                return this.deepseekService;
-        }
     }
 
     private void syncChatInfoToDatabase(Integer userId, UserChatRequest userChatRequest, List<ChatMessage> chatMessages) {

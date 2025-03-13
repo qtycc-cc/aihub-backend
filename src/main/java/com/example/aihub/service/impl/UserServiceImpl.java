@@ -69,6 +69,7 @@ public class UserServiceImpl implements UserService {
                                             .userStars(userStars)
                                             .build();
         StpUtil.login(user.getId());
+        StpUtil.getSession().set("currentUser", user);
         return ResponseEntity.ok().body(userResponse);
     }
 
