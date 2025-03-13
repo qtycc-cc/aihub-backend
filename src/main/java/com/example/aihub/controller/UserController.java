@@ -1,5 +1,7 @@
 package com.example.aihub.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
 import com.example.aihub.service.UserService;
+import com.example.aihub.utils.JsonUtils;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.stp.StpUtil;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +30,12 @@ public class UserController {
     @GetMapping("/api/v1/user")
     public ResponseEntity<UserResponse> getUserInfo() {
         return userService.getUserInfo();
+    }
+
+    @GetMapping("/api/v1/logout")
+    public ResponseEntity<String> logout() {
+        StpUtil.logout();
+        return ResponseEntity.ok().body(JsonUtils.toJson(Map.of("message", "Logout success!")));
     }
 
     @PostMapping("/api/v1/login")
