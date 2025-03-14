@@ -48,9 +48,16 @@
             `user_id` = #{userId} AND `chatinfo_id` = #{chatinfoId}
     </delete>
 
-    <update id="updateUserApiKey" parameterType="User">
+    <update id="updateUserInfo" parameterType="User">
         UPDATE `user`
-        SET `api_key` = #{apiKey}
+        <set>
+            <if test="password != null and password != ''">
+                `password` = #{password}
+            </if>
+            <if test="apiKey != null and apiKey != ''">
+                `api_key` = #{apiKey}
+            </if>
+        <set>
         WHERE `id` = #{id}
     </update>
 </mapper>

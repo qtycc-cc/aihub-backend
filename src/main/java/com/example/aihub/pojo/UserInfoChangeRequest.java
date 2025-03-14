@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserSetApiKeyRequest {
+public class UserInfoChangeRequest {
+    private String password;
     private String apiKey;
 }

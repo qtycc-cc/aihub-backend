@@ -17,10 +17,10 @@ import com.example.aihub.mapper.UserMapper;
 import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.Star;
 import com.example.aihub.pojo.User;
+import com.example.aihub.pojo.UserInfoChangeRequest;
 import com.example.aihub.pojo.UserLoginResponse;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
-import com.example.aihub.pojo.UserSetApiKeyRequest;
 import com.example.aihub.service.UserService;
 
 import cn.dev33.satoken.secure.SaSecureUtil;
@@ -149,13 +149,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<UserResponse> updateUserApiKey(UserSetApiKeyRequest userSetApiKeyRequest) {
+    public ResponseEntity<UserResponse> updateUserInfo(UserInfoChangeRequest userInfoChangeRequest) {
         User user = (User) StpUtil.getSession().get("currentUser");
-        if (userSetApiKeyRequest == null || StrUtil.isBlank(userSetApiKeyRequest.getApiKey())) {
-            throw new MyIllegalArgumentException("Api key can not be empty!");
+        if (userInfoChangeRequest == null) {
+            throw new MyIllegalArgumentException("Request not be empty!");
         }
-        user.setApiKey(userSetApiKeyRequest.getApiKey());
-        userMapper.updateUserApiKey(user);
+        user.setPassword(userInfoChangeRequest.getPassword());
+        user.setApiKey(userInfoChangeRequest.getApiKey());
+        userMapper.updateUserInfo(user);
         UserResponse userResponse = UserResponse.builder()
                                             .id(user.getId())
                                             .account(user.getAccount())

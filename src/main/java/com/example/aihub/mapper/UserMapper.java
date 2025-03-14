@@ -11,6 +11,6 @@ public interface UserMapper {
     User findUserByAccount(String account);
     void insertUser(User user);
     void insertUserStar(Star star);
-    void updateUserApiKey(User user);
+    void updateUserInfo(User user);
     void deleteUserStar(Star star);
 }
