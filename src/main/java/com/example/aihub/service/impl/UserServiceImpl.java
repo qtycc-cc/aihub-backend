@@ -1,6 +1,5 @@
 package com.example.aihub.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
@@ -15,6 +14,7 @@ import com.example.aihub.exception.MyIllegalArgumentException;
 import com.example.aihub.mapper.ChatInfoMapper;
 import com.example.aihub.mapper.UserMapper;
 import com.example.aihub.pojo.ChatInfo;
+import com.example.aihub.pojo.SimpleResponse;
 import com.example.aihub.pojo.Star;
 import com.example.aihub.pojo.User;
 import com.example.aihub.pojo.UserInfoChangeRequest;
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<UserResponse> register(UserRequest userRequest) {
+    public ResponseEntity<SimpleResponse> register(UserRequest userRequest) {
         if (userRequest == null
                 || StrUtil.isBlank(userRequest.getAccount())
                 || StrUtil.isBlank(userRequest.getPassword())) {
@@ -91,18 +91,12 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(userRequest, user);
         user.setPassword(SaSecureUtil.md5(userRequest.getPassword()));
         userMapper.insertUser(user);
-        UserResponse userResponse = UserResponse.builder()
-                                            .id(user.getId())
-                                            .account(user.getAccount())
-                                            .userChatInfos(new ArrayList<>())
-                                            .userStars(new ArrayList<>())
-                                            .build();
-        return ResponseEntity.ok().body(userResponse);
+        return ResponseEntity.ok().body(new SimpleResponse("Welcome to aihub!"));
     }
 
     @Override
     @CheckDataOwner(serviceClass = ChatServiceImpl.class)
-    public ResponseEntity<UserResponse> star(Integer chatInfoId) {
+    public ResponseEntity<SimpleResponse> star(Integer chatInfoId) {
         if (chatInfoId == null) {
             throw new MyIllegalArgumentException("Account or password can not be empty!");
         }
@@ -111,22 +105,12 @@ public class UserServiceImpl implements UserService {
                         .chatinfoId(chatInfoId)
                         .build();
         userMapper.insertUserStar(star);
-        User user = userMapper.findUserById(star.getUserId());
-        List<ChatInfo> userChatInfos = chatInfoMapper.findChatInfosByUserId(user.getId());
-        List<ChatInfo> userStars = chatInfoMapper.findStarredChatInfosByUserId(user.getId());
-        UserResponse userResponse = UserResponse.builder()
-                                            .id(user.getId())
-                                            .account(user.getAccount())
-                                            .apiKey(user.getApiKey())
-                                            .userChatInfos(userChatInfos)
-                                            .userStars(userStars)
-                                            .build();
-        return ResponseEntity.ok().body(userResponse);
+        return ResponseEntity.ok().body(new SimpleResponse("Star success!"));
     }
 
     @Override
     @CheckDataOwner(serviceClass = ChatServiceImpl.class)
-    public ResponseEntity<UserResponse> unstar(Integer chatInfoId) {
+    public ResponseEntity<SimpleResponse> unstar(Integer chatInfoId) {
         if (chatInfoId == null) {
             throw new MyIllegalArgumentException("Account or password can not be empty!");
         }
@@ -135,21 +119,11 @@ public class UserServiceImpl implements UserService {
                         .chatinfoId(chatInfoId)
                         .build();
         userMapper.deleteUserStar(star);
-        User user = userMapper.findUserById(star.getUserId());
-        List<ChatInfo> userChatInfos = chatInfoMapper.findChatInfosByUserId(user.getId());
-        List<ChatInfo> userStars = chatInfoMapper.findStarredChatInfosByUserId(user.getId());
-        UserResponse userResponse = UserResponse.builder()
-                                            .id(user.getId())
-                                            .account(user.getAccount())
-                                            .apiKey(user.getApiKey())
-                                            .userChatInfos(userChatInfos)
-                                            .userStars(userStars)
-                                            .build();
-        return ResponseEntity.ok().body(userResponse);
+        return ResponseEntity.ok().body(new SimpleResponse("Unstar success!"));
     }
 
     @Override
-    public ResponseEntity<UserResponse> updateUserInfo(UserInfoChangeRequest userInfoChangeRequest) {
+    public ResponseEntity<SimpleResponse> updateUserInfo(UserInfoChangeRequest userInfoChangeRequest) {
         User user = (User) StpUtil.getSession().get("currentUser");
         if (userInfoChangeRequest == null) {
             throw new MyIllegalArgumentException("Request not be empty!");
@@ -157,11 +131,6 @@ public class UserServiceImpl implements UserService {
         user.setPassword(SaSecureUtil.md5(userInfoChangeRequest.getPassword()));
         user.setApiKey(userInfoChangeRequest.getApiKey());
         userMapper.updateUserInfo(user);
-        UserResponse userResponse = UserResponse.builder()
-                                            .id(user.getId())
-                                            .account(user.getAccount())
-                                            .apiKey(user.getApiKey())
-                                            .build();
-        return ResponseEntity.ok().body(userResponse);
+        return ResponseEntity.ok().body(new SimpleResponse("Update success!"));
     }
 }

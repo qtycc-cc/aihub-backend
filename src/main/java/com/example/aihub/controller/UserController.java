@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.aihub.pojo.SimpleResponse;
 import com.example.aihub.pojo.UserInfoChangeRequest;
 import com.example.aihub.pojo.UserLoginResponse;
 import com.example.aihub.pojo.UserRequest;
@@ -36,7 +37,7 @@ public class UserController {
 
     @SaCheckLogin
     @PostMapping("/api/v1/user")
-    public ResponseEntity<UserResponse> updateUserInfo(@RequestBody UserInfoChangeRequest userInfoChangeRequest) {
+    public ResponseEntity<SimpleResponse> updateUserInfo(@RequestBody UserInfoChangeRequest userInfoChangeRequest) {
         return userService.updateUserInfo(userInfoChangeRequest);
     }
 
@@ -52,19 +53,19 @@ public class UserController {
     }
 
     @PostMapping("/api/v1/register")
-    public ResponseEntity<UserResponse> register(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<SimpleResponse> register(@RequestBody UserRequest userRequest) {
         return userService.register(userRequest);
     }
 
     @SaCheckLogin
     @PostMapping("/api/v1/star/{chatInfoId}")
-    public ResponseEntity<UserResponse> star(@PathVariable Integer chatInfoId) {
+    public ResponseEntity<SimpleResponse> star(@PathVariable Integer chatInfoId) {
         return userService.star(chatInfoId);
     }
 
     @SaCheckLogin
     @DeleteMapping("/api/v1/star/{chatInfoId}")
-    public ResponseEntity<UserResponse> unstar(@PathVariable Integer chatInfoId) {
+    public ResponseEntity<SimpleResponse> unstar(@PathVariable Integer chatInfoId) {
         return userService.unstar(chatInfoId);
     }
 }

@@ -6,6 +6,7 @@ import com.example.aihub.service.ChatService;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 
+import com.example.aihub.pojo.SimpleResponse;
 import com.example.aihub.pojo.UserChatRequest;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +32,7 @@ public class ChatController {
     }
 
     @DeleteMapping("/api/v1/chat/{id}")
-    public ResponseEntity<String> deleteChat(@PathVariable Integer id) {
+    public ResponseEntity<SimpleResponse> deleteChat(@PathVariable Integer id) {
         return chatService.deleteChat(id);
     }
 }

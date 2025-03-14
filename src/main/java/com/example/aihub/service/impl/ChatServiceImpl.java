@@ -2,7 +2,6 @@ package com.example.aihub.service.impl;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +19,7 @@ import com.example.aihub.mapper.ChatInfoMapper;
 import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.ChatRespType;
 import com.example.aihub.pojo.ModelType;
+import com.example.aihub.pojo.SimpleResponse;
 import com.example.aihub.pojo.User;
 import com.example.aihub.pojo.UserChatRequest;
 import com.example.aihub.pojo.UserChatResponse;
@@ -186,12 +186,12 @@ public class ChatServiceImpl implements ChatService, ResourceService {
 
     @Override
     @CheckDataOwner(serviceClass = ChatServiceImpl.class)
-    public ResponseEntity<String> deleteChat(Integer id) {
+    public ResponseEntity<SimpleResponse> deleteChat(Integer id) {
         if (id == null) {
             throw new MyIllegalArgumentException("Chat id can not be null");
         }
         chatInfoMapper.deleteChatInfo(id);
-        return ResponseEntity.ok().body(JsonUtils.toJson(Map.of("message", "Chat has been deleted!")));
+        return ResponseEntity.ok().body(new SimpleResponse("Chat has been deleted!"));
     }
 
     @Override
