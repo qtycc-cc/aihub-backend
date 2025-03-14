@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
         if (userInfoChangeRequest == null) {
             throw new MyIllegalArgumentException("Request not be empty!");
         }
-        user.setPassword(userInfoChangeRequest.getPassword());
+        user.setPassword(SaSecureUtil.md5(userInfoChangeRequest.getPassword()));
         user.setApiKey(userInfoChangeRequest.getApiKey());
         userMapper.updateUserInfo(user);
         UserResponse userResponse = UserResponse.builder()
