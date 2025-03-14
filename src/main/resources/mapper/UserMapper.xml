@@ -57,7 +57,7 @@
             <if test="apiKey != null and apiKey != ''">
                 `api_key` = #{apiKey}
             </if>
-        <set>
+        </set>
         WHERE `id` = #{id}
     </update>
 </mapper>
