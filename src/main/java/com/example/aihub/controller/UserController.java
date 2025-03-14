@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.aihub.pojo.UserLoginResponse;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
 import com.example.aihub.pojo.UserSetApiKeyRequest;
@@ -46,7 +47,7 @@ public class UserController {
     }
 
     @PostMapping("/api/v1/login")
-    public ResponseEntity<UserResponse> login(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserLoginResponse> login(@RequestBody UserRequest userRequest) {
         return userService.login(userRequest);
     }
 

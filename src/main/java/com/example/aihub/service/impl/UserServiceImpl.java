@@ -17,6 +17,7 @@ import com.example.aihub.mapper.UserMapper;
 import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.Star;
 import com.example.aihub.pojo.User;
+import com.example.aihub.pojo.UserLoginResponse;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
 import com.example.aihub.pojo.UserSetApiKeyRequest;
@@ -50,7 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<UserResponse> login(UserRequest userRequest) {
+    public ResponseEntity<UserLoginResponse> login(UserRequest userRequest) {
         if (userRequest == null
                 || StrUtil.isBlank(userRequest.getAccount())
                 || StrUtil.isBlank(userRequest.getPassword())) {
@@ -62,15 +63,17 @@ public class UserServiceImpl implements UserService {
         }
         List<ChatInfo> userChatInfos = chatInfoMapper.findChatInfosByUserId(user.getId());
         List<ChatInfo> userStars = chatInfoMapper.findStarredChatInfosByUserId(user.getId());
-        UserResponse userResponse = UserResponse.builder()
-                                            .id(user.getId())
-                                            .account(user.getAccount())
-                                            .apiKey(user.getApiKey())
-                                            .userChatInfos(userChatInfos)
-                                            .userStars(userStars)
-                                            .build();
+
         StpUtil.login(user.getId());
         StpUtil.getSession().set("currentUser", user);
+        // some setting
+        UserLoginResponse userResponse = new UserLoginResponse();
+        userResponse.setId(user.getId());
+        userResponse.setAccount(user.getAccount());
+        userResponse.setApiKey(user.getApiKey());
+        userResponse.setUserChatInfos(userChatInfos);
+        userResponse.setUserStars(userStars);
+        userResponse.setToken(StpUtil.getTokenInfo());
         return ResponseEntity.ok().body(userResponse);
     }
 
