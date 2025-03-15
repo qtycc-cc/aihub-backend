@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.aihub.pojo.SimpleResponse;
 import com.example.aihub.pojo.UserInfoChangeRequest;
 import com.example.aihub.pojo.UserLoginResponse;
+import com.example.aihub.pojo.UserLoginResponseVII;
 import com.example.aihub.pojo.UserRequest;
 import com.example.aihub.pojo.UserResponse;
+import com.example.aihub.pojo.UserResponseVII;
 import com.example.aihub.service.UserService;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
@@ -33,6 +35,12 @@ public class UserController {
     }
 
     @SaCheckLogin
+    @GetMapping("/api/v2/user")
+    public ResponseEntity<UserResponseVII> getUserInfoVII() {
+        return userService.getUserInfoVII();
+    }
+
+    @SaCheckLogin
     @PostMapping("/api/v1/user")
     public ResponseEntity<SimpleResponse> updateUserInfo(@RequestBody UserInfoChangeRequest userInfoChangeRequest) {
         return userService.updateUserInfo(userInfoChangeRequest);
@@ -47,6 +55,11 @@ public class UserController {
     @PostMapping("/api/v1/login")
     public ResponseEntity<UserLoginResponse> login(@RequestBody UserRequest userRequest) {
         return userService.login(userRequest);
+    }
+
+    @PostMapping("/api/v2/login")
+    public ResponseEntity<UserLoginResponseVII> loginVII(@RequestBody UserRequest userRequest) {
+        return userService.loginVII(userRequest);
     }
 
     @PostMapping("/api/v1/register")
