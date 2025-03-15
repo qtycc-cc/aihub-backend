@@ -6,6 +6,7 @@ import com.example.aihub.service.ChatService;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 
+import com.example.aihub.pojo.ChatInfo;
 import com.example.aihub.pojo.SimpleResponse;
 import com.example.aihub.pojo.UserChatRequest;
 
@@ -19,6 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import reactor.core.publisher.Flux;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @SaCheckLogin
 @RestController
@@ -29,6 +32,11 @@ public class ChatController {
     @PostMapping(value = "/api/v1/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chat(@RequestBody UserChatRequest userChatReq) {
         return chatService.chat(userChatReq);
+    }
+
+    @GetMapping("/api/v1/chat/{id}")
+    public ResponseEntity<ChatInfo> getChatInfo(@PathVariable Integer id) {
+        return chatService.getChatInfo(id);
     }
 
     @DeleteMapping("/api/v1/chat/{id}")

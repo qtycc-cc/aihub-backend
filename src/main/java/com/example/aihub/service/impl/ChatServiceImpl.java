@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import com.example.aihub.annotation.CheckDataOwner;
 import com.example.aihub.exception.BussinessException;
 import com.example.aihub.exception.ModelNotEqualException;
@@ -182,6 +181,16 @@ public class ChatServiceImpl implements ChatService, ResourceService {
                     userChatReq.setChatInfoId(chatInfoId);
                     syncChatInfoToDatabase(userId, userChatReq, chatMessages);
                 });
+    }
+
+    @Override
+    @CheckDataOwner(serviceClass = ChatServiceImpl.class)
+    public ResponseEntity<ChatInfo> getChatInfo(Integer id) {
+        if (id == null) {
+            throw new MyIllegalArgumentException("Chat id can not be null");
+        }
+        ChatInfo chatInfo = chatInfoMapper.findChatInfoById(id);
+        return ResponseEntity.ok().body(chatInfo);
     }
 
     @Override
