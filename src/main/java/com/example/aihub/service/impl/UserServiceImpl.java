@@ -6,7 +6,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import com.example.aihub.annotation.CheckDataOwner;
 import com.example.aihub.exception.AccountHasBeenUsedException;
 import com.example.aihub.exception.InvalidCredentialsException;
@@ -174,12 +173,19 @@ public class UserServiceImpl implements UserService {
         if (userInfoChangeRequest == null) {
             throw new MyIllegalArgumentException("Request not be empty!");
         }
+        boolean isNullPassword = true;
         if (userInfoChangeRequest.getPassword() != null) { // SaSecureUtil.md5的坑
             user.setPassword(SaSecureUtil.md5(userInfoChangeRequest.getPassword()));
-            StpUtil.logout();
+            isNullPassword = false;
         }
         user.setApiKey(userInfoChangeRequest.getApiKey());
         userMapper.updateUserInfo(user);
+        if (isNullPassword) { // 没改密码，修改session的user信息
+            user = userMapper.findUserById(user.getId());
+            StpUtil.getSession().set("currentUser", user);
+        } else { // 修改了密码直接下线
+            StpUtil.logout();
+        }
         return ResponseEntity.ok().body(new SimpleResponse("Update success!"));
     }
 }
