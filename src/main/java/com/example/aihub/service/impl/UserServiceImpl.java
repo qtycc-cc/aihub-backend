@@ -177,6 +177,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(SaSecureUtil.md5(userInfoChangeRequest.getPassword()));
         user.setApiKey(userInfoChangeRequest.getApiKey());
         userMapper.updateUserInfo(user);
+        user = userMapper.findUserById(user.getId());
         StpUtil.getSession().set("currentUser", user);
         return ResponseEntity.ok().body(new SimpleResponse("Update success!"));
     }
