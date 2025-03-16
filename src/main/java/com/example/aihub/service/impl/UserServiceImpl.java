@@ -174,11 +174,12 @@ public class UserServiceImpl implements UserService {
         if (userInfoChangeRequest == null) {
             throw new MyIllegalArgumentException("Request not be empty!");
         }
-        user.setPassword(SaSecureUtil.md5(userInfoChangeRequest.getPassword()));
+        if (userInfoChangeRequest.getPassword() != null) { // SaSecureUtil.md5的坑
+            user.setPassword(SaSecureUtil.md5(userInfoChangeRequest.getPassword()));
+            StpUtil.logout();
+        }
         user.setApiKey(userInfoChangeRequest.getApiKey());
         userMapper.updateUserInfo(user);
-        user = userMapper.findUserById(user.getId());
-        StpUtil.getSession().set("currentUser", user);
         return ResponseEntity.ok().body(new SimpleResponse("Update success!"));
     }
 }
