@@ -52,10 +52,10 @@
         UPDATE `user`
         <set>
             <if test="password != null and password != ''">
-                `password` = #{password}
+                `password` = #{password},
             </if>
             <if test="apiKey != null and apiKey != ''">
-                `api_key` = #{apiKey}
+                `api_key` = #{apiKey},
             </if>
         </set>
         WHERE `id` = #{id}
