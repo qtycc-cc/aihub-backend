@@ -1,18 +1,14 @@
 package com.example.aihub.pojo;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ChatInfo {
-    private Integer id;
-    private Integer userId;
+@EqualsAndHashCode(callSuper=true)
+public class ChatInfo extends ChatMeta {
     private String content;
-    private String topic;
-    private ModelType model;
 }

@@ -83,12 +83,12 @@ public class ChatServiceImpl implements ChatService, ResourceService {
         if (userChatReq.getChatInfoId() == null) {
             chatTopic = getTopic(userChatReq.getMessage(), apiKey); // 创建新会话的时候需要创建topic
             chatMessages = new CopyOnWriteArrayList<>();
-            ChatInfo newChatInfo = ChatInfo.builder()
-                    .userId(userId)
-                    .content("[]")
-                    .topic(chatTopic)
-                    .model(userChatReq.getModel())
-                    .build();
+            // some setting
+            ChatInfo newChatInfo = new ChatInfo();
+            newChatInfo.setUserId(userId);
+            newChatInfo.setContent("[]");
+            newChatInfo.setTopic(chatTopic);
+            newChatInfo.setModel(userChatReq.getModel());
             chatInfoMapper.insertChatInfo(newChatInfo);
             chatInfoId = newChatInfo.getId();
             model = newChatInfo.getModel();
@@ -261,11 +261,10 @@ public class ChatServiceImpl implements ChatService, ResourceService {
             return;
         }
 
-        ChatInfo chatInfo = ChatInfo.builder()
-                .id(userChatRequest.getChatInfoId())
-                .userId(userId)
-                .content(JsonUtils.toJson(chatMessages))
-                .build();
+        ChatInfo chatInfo = new ChatInfo();
+        chatInfo.setId(userChatRequest.getChatInfoId());
+        chatInfo.setUserId(userId);
+        chatInfo.setContent(JsonUtils.toJson(chatMessages));
 
         if (chatInfo.getId() == null) {
             chatInfoMapper.insertChatInfo(chatInfo);
