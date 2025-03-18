@@ -16,6 +16,7 @@ import com.example.aihub.exception.MyIllegalArgumentException;
 import com.example.aihub.exception.PermissionDeniedException;
 import com.example.aihub.mapper.ChatInfoMapper;
 import com.example.aihub.pojo.ChatInfo;
+import com.example.aihub.pojo.ChatInfoS;
 import com.example.aihub.pojo.ChatRespType;
 import com.example.aihub.pojo.ModelType;
 import com.example.aihub.pojo.SimpleResponse;
@@ -185,12 +186,24 @@ public class ChatServiceImpl implements ChatService, ResourceService {
 
     @Override
     @CheckDataOwner(serviceClass = ChatServiceImpl.class)
-    public ResponseEntity<ChatInfo> getChatInfo(Integer id) {
+    public ResponseEntity<ChatInfoS> getChatInfo(Integer id) {
         if (id == null) {
             throw new MyIllegalArgumentException("Chat id can not be null");
         }
         ChatInfo chatInfo = chatInfoMapper.findChatInfoById(id);
-        return ResponseEntity.ok().body(chatInfo);
+        Integer starId = chatInfoMapper.findStarIdByChatInfoId(id);
+        ChatInfoS chatInfoS = new ChatInfoS();
+        chatInfoS.setId(id);
+        chatInfoS.setUserId(chatInfo.getUserId());
+        chatInfoS.setTopic(chatInfo.getTopic());
+        chatInfoS.setContent(chatInfo.getContent());
+        chatInfoS.setModel(chatInfo.getModel());
+        if (starId == null) {
+            chatInfoS.setStarred(false);
+        } else {
+            chatInfoS.setStarred(true);
+        }
+        return ResponseEntity.ok().body(chatInfoS);
     }
 
     @Override
