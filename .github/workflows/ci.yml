@@ -30,10 +30,16 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      - name: Log in to DockerHub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Log in to Alibaba Cloud Container Registry (ACR)
+        run: echo "${{ secrets.ACR_PASSWORD }}" | docker login -u "${{ secrets.ACR_USERNAME }}" --password-stdin crpi-1dvre0c8a5l92ocj.cn-guangzhou.personal.cr.aliyuncs.com
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image to ACR
         run: |
-          docker build -t qtycc/aihub:latest .
-          docker push qtycc/aihub:latest
+          IMAGE_VERSION=$(date +%Y%m%d%H%M%S)  # 生成时间戳版本号
+          IMAGE_NAME=crpi-1dvre0c8a5l92ocj.cn-guangzhou.personal.cr.aliyuncs.com/qtycc/aihub-backend
+
+          docker build -t $IMAGE_NAME:$IMAGE_VERSION .
+          docker tag $IMAGE_NAME:$IMAGE_VERSION $IMAGE_NAME:latest
+
+          docker push $IMAGE_NAME:$IMAGE_VERSION
+          docker push $IMAGE_NAME:latest
