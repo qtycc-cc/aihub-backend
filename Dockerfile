@@ -1,6 +1,6 @@
 # 可能需要先 docker pull openjdk:21
 # 第一阶段：构建 Jar
-FROM maven:3.8.5-openjdk-21 AS build
+FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
