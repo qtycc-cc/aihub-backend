@@ -111,4 +111,13 @@
         WHERE
             `id` = #{id}
     </select>
+
+    <select id="findStarIdByChatInfoId">
+        SELECT
+            `id`
+        FROM
+            `star`
+        WHERE
+            `chatinfo_id` = #{chatInfoId};
+    </select>
 </mapper>

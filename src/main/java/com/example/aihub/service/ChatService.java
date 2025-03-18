@@ -2,7 +2,7 @@ package com.example.aihub.service;
 
 import org.springframework.http.ResponseEntity;
 
-import com.example.aihub.pojo.ChatInfo;
+import com.example.aihub.pojo.ChatInfoS;
 import com.example.aihub.pojo.SimpleResponse;
 import com.example.aihub.pojo.UserChatRequest;
 
@@ -14,6 +14,6 @@ public interface ChatService {
      * @param userChatReq 用户请求对象
      */
     Flux<String> chat(UserChatRequest userChatReq);
-    ResponseEntity<ChatInfo> getChatInfo(Integer id);
+    ResponseEntity<ChatInfoS> getChatInfo(Integer id);
     ResponseEntity<SimpleResponse> deleteChat(Integer id);
 }

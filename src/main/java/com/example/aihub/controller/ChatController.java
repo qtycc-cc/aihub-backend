@@ -6,7 +6,7 @@ import com.example.aihub.service.ChatService;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 
-import com.example.aihub.pojo.ChatInfo;
+import com.example.aihub.pojo.ChatInfoS;
 import com.example.aihub.pojo.SimpleResponse;
 import com.example.aihub.pojo.UserChatRequest;
 
@@ -35,7 +35,7 @@ public class ChatController {
     }
 
     @GetMapping("/api/v1/chat/{id}")
-    public ResponseEntity<ChatInfo> getChatInfo(@PathVariable Integer id) {
+    public ResponseEntity<ChatInfoS> getChatInfo(@PathVariable Integer id) {
         return chatService.getChatInfo(id);
     }
 

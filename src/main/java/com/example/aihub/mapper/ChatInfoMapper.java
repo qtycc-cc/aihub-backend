@@ -16,4 +16,5 @@ public interface ChatInfoMapper {
     void insertChatInfo(ChatInfo chatInfo);
     void updateChatInfo(ChatInfo chatInfo);
     void deleteChatInfo(Integer id);
+    Integer findStarIdByChatInfoId(Integer chatInfoId);
 }
