@@ -37,6 +37,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
 import io.reactivex.Flowable;
 import reactor.core.publisher.Flux;
+import reactor.util.context.Context;
 
 @Service
 public class ChatServiceImpl implements ChatService, ResourceService {
@@ -51,11 +52,11 @@ public class ChatServiceImpl implements ChatService, ResourceService {
     private final String DEEPSEEK_MODEL = "deepseek-r1-250120";
     private final String DOUBAO_MODEL = "doubao-1-5-pro-256k-250115";
     private final String REASON_PREFIX = "reason: ";
-    private List<ChatMessage> chatMessages;
 
     @Override
     @CheckDataOwner(serviceClass = ChatServiceImpl.class, idField = "chatInfoId")
     public Flux<String> chat(UserChatRequest userChatReq) {
+        List<ChatMessage> chatMessages;
         if (userChatReq == null
                 || StrUtil.isBlank(userChatReq.getMessage())
                 || userChatReq.getModel() == null) {
@@ -101,8 +102,8 @@ public class ChatServiceImpl implements ChatService, ResourceService {
             if (!model.equals(userChatReq.getModel())) {
                 throw new ModelNotEqualException("Your model is not equal with history!");
             }
-            chatMessages = JsonUtils.fromJson(chatInfo.getContent(), new TypeReference<List<ChatMessage>>() {
-            });
+            chatMessages = (JsonUtils.fromJson(chatInfo.getContent(), new TypeReference<List<ChatMessage>>() {
+            }));
         }
 
         // 提示词
@@ -125,7 +126,6 @@ public class ChatServiceImpl implements ChatService, ResourceService {
                 .model(getModel(userChatReq.getModel()))
                 .messages(chatMessages) // 设置消息列表
                 .build();
-
         // 发送聊天完成请求
         // 返回流式数据
         Flowable<String> flowableResponse = Flowable
@@ -147,41 +147,43 @@ public class ChatServiceImpl implements ChatService, ResourceService {
                 })
                 .doOnError(Throwable::printStackTrace);
 
-        return Flux.concat(
-                // 1️⃣ 先返回聊天的元数据（ID、主题等）
-                Flux.just(JsonUtils.toJson(
-                        UserChatResponse.builder()
-                                .type(ChatRespType.METADATA)
-                                .chatInfoId(chatInfoId)
-                                .topic(chatTopic)
-                                .model(model)
-                                .build())),
+        return Flux.deferContextual(ctx -> {
+            return Flux.concat(
+                    // 1️⃣ 先返回聊天的元数据（ID、主题等）
+                    Flux.just(JsonUtils.toJson(
+                            UserChatResponse.builder()
+                                    .type(ChatRespType.METADATA)
+                                    .chatInfoId(chatInfoId)
+                                    .topic(chatTopic)
+                                    .model(model)
+                                    .build())),
 
-                // 2️⃣ 然后流式返回消息内容
-                Flux.from(flowableResponse)
-                        .map(content -> JsonUtils.toJson(
-                                UserChatResponse.builder()
-                                        .type(ChatRespType.MESSAGE)
-                                        .data(content)
-                                        .build())),
+                    // 2️⃣ 然后流式返回消息内容
+                    Flux.from(flowableResponse)
+                            .map(content -> JsonUtils.toJson(
+                                    UserChatResponse.builder()
+                                            .type(ChatRespType.MESSAGE)
+                                            .data(content)
+                                            .build())),
 
-                // 3️⃣ 结束标志，告诉前端流结束了
-                Flux.just(JsonUtils.toJson(
-                        UserChatResponse.builder()
-                                .type(ChatRespType.END)
-                                .build())))
-                .doOnComplete(() -> {
-                    chatMessages.add(ChatMessage.builder()
-                            .role(ChatMessageRole.ASSISTANT)
-                            .reasoningContent(reasonContent.toString())
-                            .build());
-                    chatMessages.add(ChatMessage.builder()
-                            .role(ChatMessageRole.ASSISTANT)
-                            .content(assistantContent.toString())
-                            .build());
-                    userChatReq.setChatInfoId(chatInfoId);
-                    syncChatInfoToDatabase(userId, userChatReq, chatMessages);
-                });
+                    // 3️⃣ 结束标志，告诉前端流结束了
+                    Flux.just(JsonUtils.toJson(
+                            UserChatResponse.builder()
+                                    .type(ChatRespType.END)
+                                    .build())))
+                    .doOnComplete(() -> {
+                        ((List<ChatMessage>) ctx.get("chatMessages")).add(ChatMessage.builder()
+                                .role(ChatMessageRole.ASSISTANT)
+                                .reasoningContent(reasonContent.toString())
+                                .build());
+                        ((List<ChatMessage>) ctx.get("chatMessages")).add(ChatMessage.builder()
+                                .role(ChatMessageRole.ASSISTANT)
+                                .content(assistantContent.toString())
+                                .build());
+                        userChatReq.setChatInfoId(chatInfoId);
+                        syncChatInfoToDatabase(userId, userChatReq, chatMessages);
+                    });
+        }).contextWrite(Context.of("chatMessages", chatMessages));
     }
 
     @Override
