@@ -49,8 +49,8 @@ public class ChatServiceImpl implements ChatService, ResourceService {
     private final String GET_TOPIC_PROMPT = """
             你是一名擅长会话的助理，你需要将用户的会话总结为 10 个字以内的标题，标题语言与用户的首要语言一致，不要使用标点符号和其他特殊符号
             """;
-    private final String DEEPSEEK_MODEL = "deepseek-r1-250120";
-    private final String DOUBAO_MODEL = "doubao-1-5-pro-256k-250115";
+    private final String DEEPSEEK_MODEL = "deepseek-r1-250528";
+    private final String DOUBAO_MODEL = "doubao-1-5-pro-32k-250115";
     private final String REASON_PREFIX = "reason: ";
 
     @Override
