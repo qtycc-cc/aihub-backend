@@ -1,5 +1,4 @@
-# 可能需要先 docker pull openjdk:21
-FROM openjdk:21
+FROM openjdk:21-rc-oraclelinux8
 
 EXPOSE 8080
 
